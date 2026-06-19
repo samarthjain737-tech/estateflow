@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EstateFlow CRM</title>
+<style>
+/* ===================== DESIGN TOKENS ===================== */
+:root{
+  --bg-sidebar:#0f1b2d;
+  --bg-sidebar-hover:#172a44;
+  --bg-sidebar-active:#1d3a63;
+  --bg-app:#f3f5f9;
+  --bg-card:#ffffff;
+  --bg-card-alt:#f8f9fc;
+  --accent:#3b6fe0;
+  --accent-dark:#2e58c2;
+  --accent-light:#eaf0fe;
+  --accent-light-2:#dde8fd;
+  --text-primary:#16213d;
+  --text-secondary:#6b7689;
+  --text-muted:#97a0b3;
+  --text-on-dark:#c9d3e6;
+  --text-on-dark-muted:#7c8aa6;
+  --border:#e6e9f0;
+  --border-strong:#d7dce6;
+  --success:#19a974;
+  --success-bg:#e6f7ef;
+  --warning:#e8a429;
+  --warning-bg:#fdf3df;
+  --danger:#e15554;
+  --danger-bg:#fdeaea;
+  --info:#3b6fe0;
+  --info-bg:#eaf0fe;
+  --purple:#8b5cf6;
+  --purple-bg:#f1ebfe;
+
+  --radius-sm:6px;
+  --radius-md:10px;
+  --radius-lg:16px;
+  --radius-pill:999px;
+
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:16px;
+  --space-5:24px;
+  --space-6:32px;
+  --space-7:40px;
+
+  --font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-xs:11px;
+  --font-sm:12.5px;
+  --font-base:13.5px;
+  --font-md:15px;
+  --font-lg:18px;
+  --font-xl:22px;
+  --font-2xl:28px;
+
+  --shadow-sm:0 1px 2px rgba(16,24,40,.05);
+  --shadow-md:0 4px 12px rgba(16,24,40,.07);
+  --shadow-lg:0 12px 32px rgba(16,24,40,.12);
+
+  --sidebar-w:264px;
+  --topbar-h:64px;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-family);
+  background:var(--bg-app);
+  color:var(--text-primary);
+  font-size:var(--font-base);
+  -webkit-font-smoothing:antialiased;
+  min-width:1200px;
+}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;font-size:var(--font-base);}
+table{border-collapse:collapse;width:100%;}
+ul{margin:0;padding:0;}
+svg{display:block;}
+
+/* ===================== APP SHELL ===================== */
+.app{display:flex;min-height:100vh;}
+
+/* ----- SIDEBAR ----- */
+.sidebar{
+  width:var(--sidebar-w);
+  background:var(--bg-sidebar);
+  position:fixed;
+  top:0;left:0;bottom:0;
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+  overflow-y:auto;
+}
+.sidebar::-webkit-scrollbar{width:6px;}
+.sidebar::-webkit-scrollbar-thumb{background:#22324c;border-radius:3px;}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  padding:20px 20px 16px;
+  color:#fff;
+  font-weight:700;font-size:16px;
+  border-bottom:1px solid #1c2c45;
+  flex-shrink:0;
+}
+.brand-mark{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),#6ea0ff);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.nav{padding:14px 12px 24px;flex:1;}
+.nav-group{margin-bottom:6px;}
+.nav-group-label{
+  font-size:10.5px;font-weight:700;letter-spacing:.08em;
+  color:var(--text-on-dark-muted);
+  text-transform:uppercase;
+  padding:14px 12px 6px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;margin:1px 0;
+  border-radius:var(--radius-sm);
+  color:var(--text-on-dark);
+  font-size:13px;font-weight:500;
+  cursor:pointer;
+  position:relative;
+  white-space:nowrap;
+}
+.nav-item .ic{width:17px;height:17px;flex-shrink:0;opacity:.85;}
+.nav-item:hover{background:var(--bg-sidebar-hover);color:#fff;}
+.nav-item.active{background:var(--bg-sidebar-active);color:#fff;}
+.nav-item.active .ic{opacity:1;}
+.nav-item.active::before{
+  content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;
+  background:var(--accent);border-radius:0 3px 3px 0;
+}
+.nav-item .chev{margin-left:auto;width:13px;height:13px;transition:transform .15s;opacity:.6;}
+.nav-item.expanded .chev{transform:rotate(90deg);}
+.nav-sub{overflow:hidden;max-height:0;transition:max-height .18s ease;}
+.nav-sub.open{max-height:400px;}
+.nav-sub-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 12px 7px 39px;
+  font-size:12.5px;font-weight:500;
+  color:var(--text-on-dark-muted);
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+}
+.nav-sub-item:hover{color:#fff;background:var(--bg-sidebar-hover);}
+.nav-sub-item.active{color:#fff;background:var(--bg-sidebar-active);font-weight:600;}
+.nav-badge{
+  margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:700;
+  padding:1px 6px;border-radius:var(--radius-pill);
+}
+.sidebar-footer{
+  padding:14px 16px;border-top:1px solid #1c2c45;flex-shrink:0;
+  display:flex;align-items:center;gap:10px;
+}
+.sidebar-footer .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;}
+.sidebar-footer .who{min-width:0;}
+.sidebar-footer .who .name{color:#fff;font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sidebar-footer .who .role{color:var(--text-on-dark-muted);font-size:11px;}
+
+/* ----- MAIN ----- */
+.main{
+  margin-left:var(--sidebar-w);
+  flex:1;
+  display:flex;flex-direction:column;
+  min-width:0;
+}
+.topbar{
+  height:var(--topbar-h);
+  background:var(--bg-card);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 24px;gap:16px;
+  position:sticky;top:0;z-index:50;
+  flex-shrink:0;
+}
+.topbar-title{font-size:var(--font-lg);font-weight:700;color:var(--text-primary);white-space:nowrap;}
+.topbar-search{
+  flex:1;max-width:380px;position:relative;
+}
+.topbar-search input{
+  width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:var(--radius-md);
+  background:var(--bg-card-alt);font-size:var(--font-sm);outline:none;
+}
+.topbar-search input:focus{border-color:var(--accent);background:#fff;}
+.topbar-search .ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);}
+.topbar-right{display:flex;align-items:center;gap:14px;margin-left:auto;flex-shrink:0;}
+.icon-btn{
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);background:#fff;color:var(--text-secondary);position:relative;
+}
+.icon-btn:hover{background:var(--bg-card-alt);}
+.icon-btn .dot{position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--danger);border:1.5px solid #fff;}
+.topbar-user{display:flex;align-items:center;gap:8px;}
+.topbar-user .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent-light);color:var(--accent-dark);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+.topbar-user .name{font-size:12.5px;font-weight:600;}
+.topbar-user .role{font-size:11px;color:var(--text-muted);}
+
+.content{padding:24px;flex:1;}
+.view{display:none;}
+.view.active{display:block;animation:fadeIn .15s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+.view-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;}
+.view-header h1{font-size:var(--font-xl);font-weight:700;margin:0 0 4px;}
+.view-header p.sub{margin:0;color:var(--text-secondary);font-size:var(--font-sm);}
+.view-actions{display:flex;gap:10px;flex-shrink:0;}
+
+/* ===================== COMPONENTS ===================== */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:var(--radius-md);
+  font-size:var(--font-sm);font-weight:600;
+  border:1px solid var(--border-strong);background:#fff;color:var(--text-primary);
+}
+.btn:hover{background:var(--bg-card-alt);}
+.btn .ic{width:14px;height:14px;}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent-dark);}
+.btn-sm{padding:6px 10px;font-size:var(--font-xs);}
+.btn-ghost{border-color:transparent;background:transparent;}
+.btn-ghost:hover{background:var(--bg-card-alt);}
+.btn-danger-outline{color:var(--danger);border-color:#f3cccb;}
+.btn-danger-outline:hover{background:var(--danger-bg);}
+
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;}
+.card+.card{margin-top:16px;}
+.grid{display:grid;gap:16px;}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px;}
+.kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;}
+.kpi-card .top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.kpi-card .label{font-size:var(--font-sm);color:var(--text-secondary);font-weight:600;}
+.kpi-icon{width:34px;height:34px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.kpi-icon svg{width:17px;height:17px;}
+.kpi-icon.blue{background:var(--info-bg);color:var(--info);}
+.kpi-icon.green{background:var(--success-bg);color:var(--success);}
+.kpi-icon.amber{background:var(--warning-bg);color:var(--warning);}
+.kpi-icon.red{background:var(--danger-bg);color:var(--danger);}
+.kpi-icon.purple{background:var(--purple-bg);color:var(--purple);}
+.kpi-card .value{font-size:24px;font-weight:700;margin-bottom:4px;}
+.kpi-card .delta{font-size:var(--font-xs);font-weight:600;display:flex;align-items:center;gap:3px;}
+.kpi-card .delta.up{color:var(--success);}
+.kpi-card .delta.down{color:var(--danger);}
+.kpi-card .delta .vs{color:var(--text-muted);font-weight:500;margin-left:2px;}
+
+.section-title{font-size:var(--font-md);font-weight:700;margin:0 0 14px;display:flex;align-items:center;justify-content:space-between;}
+.section-title .link{font-size:var(--font-xs);font-weight:600;color:var(--accent);}
+
+/* tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.tab-btn{
+  padding:10px 16px;font-size:var(--font-sm);font-weight:600;color:var(--text-secondary);
+  border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;
+}
+.tab-btn:hover{color:var(--text-primary);}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* filter bar */
+.filter-bar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:14px 16px;margin-bottom:16px;
+}
+.filter-bar .fgroup{display:flex;flex-direction:column;gap:4px;}
+.filter-bar label{font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;}
+.filter-bar select,.filter-bar input[type=text],.filter-bar input[type=date]{
+  padding:7px 10px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);
+  font-size:var(--font-sm);min-width:140px;background:#fff;color:var(--text-primary);
+}
+.filter-bar .search-wrap{position:relative;flex:1;min-width:200px;}
+.filter-bar .search-wrap input{width:100%;padding-left:30px;}
+.filter-bar .search-wrap .ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-muted);}
+.filter-bar .spacer{flex:1;}
+.filter-actions{display:flex;gap:8px;align-self:flex-end;}
+
+/* table */
+.table-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.table-scroll{overflow-x:auto;}
+.data-table{min-width:100%;}
+.data-table th{
+  text-align:left;padding:11px 16px;font-size:10.5px;font-weight:700;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.04em;background:var(--bg-card-alt);
+  border-bottom:1px solid var(--border);white-space:nowrap;position:relative;
+}
+.data-table th.sortable{cursor:pointer;user-select:none;}
+.data-table th.sortable:hover{color:var(--text-primary);}
+.data-table th .sort-arrow{display:inline-block;margin-left:4px;font-size:9px;opacity:.4;}
+.data-table th.sort-asc .sort-arrow,.data-table th.sort-desc .sort-arrow{opacity:1;color:var(--accent);}
+.data-table th[rowspan],.data-table th[colspan]{text-align:center;}
+.data-table thead tr.group-row th{background:var(--accent-light);color:var(--accent-dark);border-bottom:1px solid var(--border);}
+.data-table td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:var(--font-base);color:var(--text-primary);white-space:nowrap;}
+.data-table tbody tr:last-child td{border-bottom:none;}
+.data-table tbody tr:hover{background:var(--bg-card-alt);}
+.data-table td.cell-sub{display:block;font-size:11px;color:var(--text-muted);font-weight:400;white-space:nowrap;}
+.cell-main{font-weight:600;}
+.link-id{color:var(--accent);font-weight:600;}
+.table-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);font-size:var(--font-xs);color:var(--text-secondary);}
+.pagination{display:flex;gap:4px;}
+.page-btn{width:28px;height:28px;border-radius:var(--radius-sm);border:1px solid var(--border);background:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;}
+.page-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;white-space:nowrap;}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;}
+.badge.green{background:var(--success-bg);color:var(--success);}
+.badge.amber{background:var(--warning-bg);color:var(--warning);}
+.badge.red{background:var(--danger-bg);color:var(--danger);}
+.badge.blue{background:var(--info-bg);color:var(--info);}
+.badge.gray{background:#eef0f4;color:var(--text-secondary);}
+.badge.purple{background:var(--purple-bg);color:var(--purple);}
+.tag{display:inline-block;padding:3px 9px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;background:var(--bg-card-alt);color:var(--text-secondary);border:1px solid var(--border);}
+
+/* toggle */
+.toggle{position:relative;display:inline-block;width:38px;height:21px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle .slider{position:absolute;inset:0;background:#d3d8e3;border-radius:var(--radius-pill);transition:.15s;}
+.toggle .slider::before{content:'';position:absolute;width:15px;height:15px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s;box-shadow:var(--shadow-sm);}
+.toggle input:checked+.slider{background:var(--accent);}
+.toggle input:checked+.slider::before{transform:translateX(17px);}
+
+/* progress bar */
+.progress-bar{height:7px;background:var(--bg-card-alt);border-radius:var(--radius-pill);overflow:hidden;}
+.progress-bar .fill{height:100%;background:var(--accent);border-radius:var(--radius-pill);}
+
+/* units grid */
+.floor-row{display:flex;align-items:center;gap:10px;}
+.floor-label{width:64px;flex-shrink:0;font-size:12px;font-weight:600;color:var(--text-secondary);}
+.floor-units{display:flex;gap:6px;flex-wrap:wrap;}
+.unit-cell{position:relative;width:34px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;cursor:default;color:#fff;}
+.unit-cell.available{background:var(--success);}
+.unit-cell.held{background:var(--warning);}
+.unit-cell.booked{background:var(--info);}
+.unit-cell.sold{background:var(--danger);}
+.unit-cell .tt-bubble{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#16213d;color:#fff;font-size:11px;padding:5px 9px;border-radius:6px;white-space:nowrap;display:none;z-index:10;font-weight:500;}
+.unit-cell:hover .tt-bubble{display:block;}
+
+/* empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px;text-align:center;}
+.empty-state .ic-wrap{width:62px;height:62px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;margin-bottom:18px;color:var(--accent);}
+.empty-state .ic-wrap svg{width:28px;height:28px;}
+.empty-state h3{margin:0 0 6px;font-size:var(--font-md);font-weight:700;}
+.empty-state p{margin:0;color:var(--text-secondary);font-size:var(--font-sm);max-width:340px;}
+
+/* avatar chip */
+.person{display:flex;align-items:center;gap:8px;}
+.person .av{width:28px;height:28px;border-radius:50%;background:var(--accent-light);color:var(--accent-dark);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex-shrink:0;}
+.person .nm{font-weight:600;font-size:var(--font-base);}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:1000;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:var(--radius-lg);width:480px;max-width:92vw;max-height:86vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+.modal-head h3{margin:0;font-size:var(--font-md);font-weight:700;}
+.modal-close{width:28px;height:28px;border-radius:50%;border:none;background:var(--bg-card-alt);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
+.modal-body{padding:20px 22px;}
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--border);}
+
+/* toast */
+.toast-stack{position:fixed;bottom:22px;right:22px;z-index:2000;display:flex;flex-direction:column;gap:10px;}
+.toast{background:#16213d;color:#fff;padding:12px 18px;border-radius:var(--radius-md);font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(8px);transition:.25s;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast .dot{width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;}
+.form-row{margin-bottom:14px;}
+.form-row label{display:block;font-size:var(--font-xs);font-weight:600;color:var(--text-secondary);margin-bottom:5px;}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:8px 11px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font-size:var(--font-sm);}
+.detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:var(--font-sm);}
+.detail-row:last-child{border-bottom:none;}
+.detail-row .k{color:var(--text-secondary);}
+.detail-row .v{font-weight:600;}
+
+/* tooltip */
+.tt{position:relative;}
+.tt .tt-bubble{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#16213d;color:#fff;font-size:11px;padding:5px 9px;border-radius:6px;white-space:nowrap;display:none;z-index:10;}
+.tt:hover .tt-bubble{display:block;}
+
+/* misc */
+.text-muted{color:var(--text-muted);}
+.flex-between{display:flex;align-items:center;justify-content:space-between;}
+.flex-gap{display:flex;align-items:center;gap:8px;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.checkbox{width:15px;height:15px;accent-color:var(--accent);}
+.scroll-x{overflow-x:auto;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ===================== SIDEBAR ===================== -->
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">EF</div> EstateFlow</div>
+  <nav class="nav" id="nav">
+
+    <div class="nav-group">
+      <div class="nav-group-label">Workspace</div>
+      <div class="nav-item active" data-view="overview"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overview</div>
+      <div class="nav-item" data-view="projects"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-6 9 6-9 6-9-6z"/><path d="M3 9v8l9 6 9-6V9"/></svg>Projects</div>
+      <div class="nav-item" data-view="sitevisits"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.5-7-11a7 7 0 1114 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Site Visits</div>
+      <div class="nav-item" data-view="bookings"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Bookings</div>
+      <div class="nav-item" data-view="expenses"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 .8 3 2c0 3-6 1.5-6 4.5 0 1.2 1.3 2 3 2s3-1.1 3-2.5"/></svg>Expenses</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">CRM</div>
+      <div class="nav-item" data-view="leads"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Leads</div>
+      <div class="nav-item" data-view="contacts"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Contacts</div>
+      <div class="nav-item" data-view="channelpartners"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M6 9v2a3 3 0 003 3M18 9v2a3 3 0 01-3 3"/></svg>Channel Partners</div>
+      <div class="nav-item" data-view="leadactivity"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>Lead Activity</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Finance</div>
+      <div class="nav-item" data-view="deals"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2v-1"/><path d="M16 12h6m-3-3v6"/></svg>Deals</div>
+      <div class="nav-item" data-view="payments"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Payments</div>
+      <div class="nav-item" data-view="units"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>Units</div>
+      <div class="nav-item" data-view="duecustomers"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>Due Customers</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Growth</div>
+      <div class="nav-item" data-view="campaigns"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-7-7 18-3-8-8-3z"/></svg>Campaigns</div>
+
+      <div class="nav-item nav-parent" id="reports-parent"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Reports<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="nav-sub" id="reports-sub">
+        <div class="nav-sub-item" data-view="reports-overview">Lead Analysis</div>
+        <div class="nav-sub-item" data-view="reports-cpsourcing">CP Sourcing</div>
+        <div class="nav-sub-item" data-view="reports-callanalysis">Call Analysis</div>
+        <div class="nav-sub-item" data-view="reports-calllogs">Call Logs</div>
+        <div class="nav-sub-item" data-view="reports-ivr">IVR Calls</div>
+        <div class="nav-sub-item" data-view="reports-visitanalysis">Visit Analysis</div>
+        <div class="nav-sub-item" data-view="reports-attendance">Attendance</div>
+        <div class="nav-sub-item" data-view="reports-employeetracking">Employee Tracking</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Admin</div>
+      <div class="nav-item" data-view="orgchart"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/><path d="M12 8v4M12 12H5v4M12 12h7v4"/></svg>Org Chart</div>
+      <div class="nav-item" data-view="teammembers"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="19" cy="9" r="3"/></svg>Team Members</div>
+      <div class="nav-item" data-view="birthdays"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM4 21V12a2 2 0 012-2h12a2 2 0 012 2v9M2 21h20M4 16h16"/></svg>Birthdays</div>
+      <div class="nav-item" data-view="settings"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33h0A1.65 1.65 0 009 4.09V4a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v0a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</div>
+    </div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="avatar">PK</div>
+    <div class="who"><div class="name">Priya Kapoor</div><div class="role">Sales Admin</div></div>
+  </div>
+</aside>
+
+<!-- ===================== MAIN ===================== -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Overview</div>
+    <div class="topbar-search">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search leads, deals, contacts...">
+    </div>
+    <div class="topbar-right">
+      <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg><span class="dot"></span></div>
+      <div class="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
+      <div class="topbar-user">
+        <div class="avatar">PK</div>
+        <div><div class="name">Priya Kapoor</div><div class="role">Sales Admin</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+    <!-- VIEWS INSERTED HERE -->
+    <!-- ===================== OVERVIEW ===================== -->
+<div class="view active" id="view-overview">
+  <div class="view-header">
+    <div><h1>Overview</h1><p class="sub">Welcome back, Priya — here's what's happening across your projects today.</p></div>
+    <div class="view-actions">
+      <select class="btn" id="ov-range" style="font-weight:600;">
+        <option>Last 7 days</option>
+        <option selected>Last 30 days</option>
+        <option>This quarter</option>
+        <option>This year</option>
+      </select>
+      <button class="btn btn-primary"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add Lead</button>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="top-row"><span class="label">Total Leads</span><div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div>
+      <div class="value">2,348</div>
+      <div class="delta up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5-5 4 4 5-7"/></svg>12.4%<span class="vs">vs last month</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="top-row"><span class="label">Site Visits</span><div class="kpi-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.5-7-11a7 7 0 1114 0c0 4.5-7 11-7 11z"/></svg></div></div>
+      <div class="value">486</div>
+      <div class="delta up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5-5 4 4 5-7"/></svg>8.1%<span class="vs">vs last month</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="top-row"><span class="label">Bookings</span><div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/></svg></div></div>
+      <div class="value">94</div>
+      <div class="delta up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5-5 4 4 5-7"/></svg>5.6%<span class="vs">vs last month</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="top-row"><span class="label">Revenue (Collected)</span><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg></div></div>
+      <div class="value">₹18.6 Cr</div>
+      <div class="delta down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 4-4 5 7"/></svg>2.3%<span class="vs">vs last month</span></div>
+    </div>
+  </div>
+
+  <div class="grid grid-3" style="grid-template-columns:1.3fr 1fr;margin-bottom:16px;">
+    <div class="card">
+      <div class="section-title">Weekly Activity<span class="link">View report</span></div>
+      <div style="display:flex;align-items:flex-end;gap:14px;height:180px;padding:0 4px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="display:flex;gap:3px;align-items:flex-end;height:140px;"><div style="width:10px;background:var(--accent);border-radius:3px 3px 0 0;height:62%"></div><div style="width:10px;background:var(--purple);border-radius:3px 3px 0 0;height:38%"></div></div><span class="text-muted" style="font-size:11px;">Mon</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="display:flex;gap:3px;align-items:flex-end;height:140px;"><div style="width:10px;background:var(--accent);border-radius:3px 3px 0 0;height:80%"></div><div style="width:10px;background:var(--purple);border-radius:3px 3px 0 0;height:52%"></div></div><span class="text-muted" style="font-size:11px;">Tue</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="display:flex;gap:3px;align-items:flex-end;height:140px;"><div style="width:10px;background:var(--accent);border-radius:3px 3px 0 0;height:55%"></div><div style="width:10px;background:var(--purple);border-radius:3px 3px 0 0;height:30%"></div></div><span class="text-muted" style="font-size:11px;">Wed</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="display:flex;gap:3px;align-items:flex-end;height:140px;"><div style="width:10px;background:var(--accent);border-radius:3px 3px 0 0;height:95%"></div><div style="width:10px;background:var(--purple);border-radius:3px 3px 0 0;height:60%"></div></div><span class="text-muted" style="font-size:11px;">Thu</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="display:flex;gap:3px;align-items:flex-end;height:140px;"><div style="width:10px;background:var(--accent);border-radius:3px 3px 0 0;height:70%"></div><div style="width:10px;background:var(--purple);border-radius:3px 3px 0 0;height:45%"></div></div><span class="text-muted" style="font-size:11px;">Fri</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="display:flex;gap:3px;align-items:flex-end;height:140px;"><div style="width:10px;background:var(--accent);border-radius:3px 3px 0 0;height:40%"></div><div style="width:10px;background:var(--purple);border-radius:3px 3px 0 0;height:20%"></div></div><span class="text-muted" style="font-size:11px;">Sat</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="display:flex;gap:3px;align-items:flex-end;height:140px;"><div style="width:10px;background:var(--accent);border-radius:3px 3px 0 0;height:25%"></div><div style="width:10px;background:var(--purple);border-radius:3px 3px 0 0;height:15%"></div></div><span class="text-muted" style="font-size:11px;">Sun</span></div>
+      </div>
+      <div style="display:flex;gap:18px;margin-top:10px;">
+        <span style="font-size:11px;color:var(--text-secondary);"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--accent);margin-right:5px;"></span>New Leads</span>
+        <span style="font-size:11px;color:var(--text-secondary);"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--purple);margin-right:5px;"></span>Site Visits</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Lead Source Breakdown</div>
+      <div style="display:flex;align-items:center;gap:20px;">
+        <svg width="130" height="130" viewBox="0 0 42 42">
+          <circle cx="21" cy="21" r="15.91" fill="transparent" stroke="#eef0f4" stroke-width="6"></circle>
+          <circle cx="21" cy="21" r="15.91" fill="transparent" stroke="#3b6fe0" stroke-width="6" stroke-dasharray="34 66" stroke-dashoffset="25"></circle>
+          <circle cx="21" cy="21" r="15.91" fill="transparent" stroke="#8b5cf6" stroke-width="6" stroke-dasharray="26 74" stroke-dashoffset="91"></circle>
+          <circle cx="21" cy="21" r="15.91" fill="transparent" stroke="#19a974" stroke-width="6" stroke-dasharray="22 78" stroke-dashoffset="65"></circle>
+          <circle cx="21" cy="21" r="15.91" fill="transparent" stroke="#e8a429" stroke-width="6" stroke-dasharray="18 82" stroke-dashoffset="43"></circle>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <span style="font-size:12px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b6fe0;margin-right:6px;"></span>Website &amp; Portals — 34%</span>
+          <span style="font-size:12px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8b5cf6;margin-right:6px;"></span>Channel Partners — 26%</span>
+          <span style="font-size:12px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#19a974;margin-right:6px;"></span>Referrals — 22%</span>
+          <span style="font-size:12px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#e8a429;margin-right:6px;"></span>Walk-ins — 18%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px;">
+    <div class="card">
+      <div class="section-title">Sales Pipeline</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>New (812)</span><span class="text-muted">100%</span></div><div class="progress-bar"><div class="fill" style="width:100%;background:#3b6fe0;"></div></div></div>
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Contacted (604)</span><span class="text-muted">74%</span></div><div class="progress-bar"><div class="fill" style="width:74%;background:#6e8ef0;"></div></div></div>
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Site Visit (486)</span><span class="text-muted">60%</span></div><div class="progress-bar"><div class="fill" style="width:60%;background:#8b5cf6;"></div></div></div>
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Negotiation (212)</span><span class="text-muted">26%</span></div><div class="progress-bar"><div class="fill" style="width:26%;background:#e8a429;"></div></div></div>
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Booked (94)</span><span class="text-muted">12%</span></div><div class="progress-bar"><div class="fill" style="width:12%;background:#19a974;"></div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Upcoming Site Visits</div>
+      <div style="display:flex;flex-direction:column;gap:13px;">
+        <div class="flex-between"><div class="person"><div class="av">RS</div><div><div class="nm">Rahul Sharma</div><div class="text-muted" style="font-size:11px;">Skyline Heights · Today, 4:00 PM</div></div></div><span class="badge blue">Confirmed</span></div>
+        <div class="flex-between"><div class="person"><div class="av">AN</div><div><div class="nm">Anjali Nair</div><div class="text-muted" style="font-size:11px;">Palm Residency · Today, 5:30 PM</div></div></div><span class="badge amber">Pending</span></div>
+        <div class="flex-between"><div class="person"><div class="av">VK</div><div><div class="nm">Vikram Kulkarni</div><div class="text-muted" style="font-size:11px;">Greenfield Towers · Tomorrow, 11:00 AM</div></div></div><span class="badge blue">Confirmed</span></div>
+        <div class="flex-between"><div class="person"><div class="av">SM</div><div><div class="nm">Sneha Mehta</div><div class="text-muted" style="font-size:11px;">Skyline Heights · Tomorrow, 3:00 PM</div></div></div><span class="badge blue">Confirmed</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div style="padding:18px 20px 0;"><div class="section-title">Recent Leads<span class="link" data-view-link="leads">View all leads</span></div></div>
+    <div class="table-scroll">
+      <table class="data-table" id="ov-leads-table">
+        <thead><tr><th>Lead</th><th>Source</th><th>Project Interest</th><th>Budget</th><th>Status</th><th>Assigned To</th><th>Created</th></tr></thead>
+        <tbody>
+          <tr><td><div class="person"><div class="av">RS</div><div class="nm">Rahul Sharma</div></div></td><td>Website</td><td>Skyline Heights</td><td>₹85L - ₹95L</td><td><span class="badge blue">New</span></td><td>Karan Mehta</td><td>2 hrs ago</td></tr>
+          <tr><td><div class="person"><div class="av">AN</div><div class="nm">Anjali Nair</div></div></td><td>99acres</td><td>Palm Residency</td><td>₹1.2Cr - ₹1.5Cr</td><td><span class="badge amber">Contacted</span></td><td>Sonal Rao</td><td>4 hrs ago</td></tr>
+          <tr><td><div class="person"><div class="av">VK</div><div class="nm">Vikram Kulkarni</div></div></td><td>Channel Partner</td><td>Greenfield Towers</td><td>₹65L - ₹75L</td><td><span class="badge purple">Site Visit</span></td><td>Karan Mehta</td><td>6 hrs ago</td></tr>
+          <tr><td><div class="person"><div class="av">SM</div><div class="nm">Sneha Mehta</div></div></td><td>Referral</td><td>Skyline Heights</td><td>₹90L - ₹1Cr</td><td><span class="badge green">Negotiation</span></td><td>Dev Patel</td><td>1 day ago</td></tr>
+          <tr><td><div class="person"><div class="av">AJ</div><div class="nm">Arjun Joshi</div></div></td><td>Walk-in</td><td>Lakeview Enclave</td><td>₹55L - ₹60L</td><td><span class="badge blue">New</span></td><td>Sonal Rao</td><td>1 day ago</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STUB / COMING SOON VIEWS ===================== -->
+<div class="view" id="view-projects">
+  <div class="view-header"><div><h1>Projects</h1><p class="sub">Manage your real-estate project portfolio.</p></div></div>
+  <div class="card"><div class="empty-state"><div class="ic-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-6 9 6-9 6-9-6z"/><path d="M3 9v8l9 6 9-6V9"/></svg></div><h3>Projects module coming soon</h3><p>Project-level inventory, pricing and milestone tracking will appear here in a future release.</p></div></div>
+</div>
+<div class="view" id="view-sitevisits">
+  <div class="view-header"><div><h1>Site Visits</h1><p class="sub">Schedule and track customer site visits.</p></div></div>
+  <div class="card"><div class="empty-state"><div class="ic-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.5-7-11a7 7 0 1114 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><h3>Site Visits module coming soon</h3><p>A calendar view of scheduled, completed and missed site visits will appear here.</p></div></div>
+</div>
+<div class="view" id="view-bookings">
+  <div class="view-header"><div><h1>Bookings</h1><p class="sub">Track unit bookings and agreement status.</p></div></div>
+  <div class="card"><div class="empty-state"><div class="ic-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div><h3>Bookings module coming soon</h3><p>Booking forms, agreement tracking and unit allotment will appear here.</p></div></div>
+</div>
+<div class="view" id="view-expenses">
+  <div class="view-header"><div><h1>Expenses</h1><p class="sub">Track marketing and operational spend.</p></div></div>
+  <div class="card"><div class="empty-state"><div class="ic-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 .8 3 2c0 3-6 1.5-6 4.5 0 1.2 1.3 2 3 2s3-1.1 3-2.5"/></svg></div><h3>Expenses module coming soon</h3><p>Categorized expense tracking with approval workflows will appear here.</p></div></div>
+</div>
+<!-- ===================== LEADS ===================== -->
+<div class="view" id="view-leads">
+  <div class="view-header">
+    <div><h1>Leads</h1><p class="sub">2,348 total leads across all projects.</p></div>
+    <div class="view-actions"><button class="btn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button><button class="btn btn-primary"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add Lead</button></div>
+  </div>
+
+  <div class="filter-bar" id="leads-filter-bar">
+    <div class="search-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="leads-search" placeholder="Search by name, phone or email"></div>
+    <div class="fgroup"><label>Status</label><select id="leads-f-status"><option value="">All Status</option><option>New</option><option>Contacted</option><option>Site Visit</option><option>Negotiation</option><option>Booked</option><option>Lost</option></select></div>
+    <div class="fgroup"><label>Source</label><select id="leads-f-source"><option value="">All Sources</option><option>Website</option><option>99acres</option><option>Channel Partner</option><option>Referral</option><option>Walk-in</option></select></div>
+    <div class="fgroup"><label>Project</label><select id="leads-f-project"><option value="">All Projects</option><option>Skyline Heights</option><option>Palm Residency</option><option>Greenfield Towers</option><option>Lakeview Enclave</option></select></div>
+    <div class="filter-actions"><button class="btn btn-primary btn-sm" id="leads-apply">Apply</button><button class="btn btn-sm" id="leads-clear">Clear</button></div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table" id="leads-table">
+        <thead><tr>
+          <th class="sortable" data-key="name">Lead Name<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="phone">Phone<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="source">Source<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="project">Project Interest<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="budget">Budget<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="status">Status<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="agent">Assigned To<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="created">Created<span class="sort-arrow">▾</span></th>
+        </tr></thead>
+        <tbody id="leads-tbody"></tbody>
+      </table>
+    </div>
+    <div class="table-foot"><span id="leads-count">Showing 14 of 2,348 leads</span><div class="pagination"><div class="page-btn active">1</div><div class="page-btn">2</div><div class="page-btn">3</div><div class="page-btn">…</div><div class="page-btn">168</div></div></div>
+  </div>
+</div>
+
+<!-- ===================== CONTACTS ===================== -->
+<div class="view" id="view-contacts">
+  <div class="view-header"><div><h1>Contacts</h1><p class="sub">All customer and prospect contacts across the funnel.</p></div>
+    <div class="view-actions"><button class="btn btn-primary"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add Contact</button></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab-group="contacts-tabs" data-tab="contacts-analysis">Contact Analysis</button>
+    <button class="tab-btn" data-tab-group="contacts-tabs" data-tab="contacts-list">Detailed List</button>
+  </div>
+
+  <div class="tab-panel active" id="contacts-analysis">
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="top-row"><span class="label">Total Contacts</span><div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div></div><div class="value">3,912</div></div>
+      <div class="kpi-card"><div class="top-row"><span class="label">Active Customers</span><div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div></div><div class="value">1,284</div></div>
+      <div class="kpi-card"><div class="top-row"><span class="label">Prospects</span><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></div></div><div class="value">2,406</div></div>
+      <div class="kpi-card"><div class="top-row"><span class="label">Duplicate Flags</span><div class="kpi-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg></div></div><div class="value">22</div></div>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr 1fr;">
+      <div class="card">
+        <div class="section-title">Contacts by Type</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Buyers</span><span class="text-muted">62%</span></div><div class="progress-bar"><div class="fill" style="width:62%;background:#3b6fe0;"></div></div></div>
+          <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Investors</span><span class="text-muted">24%</span></div><div class="progress-bar"><div class="fill" style="width:24%;background:#8b5cf6;"></div></div></div>
+          <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Tenants</span><span class="text-muted">9%</span></div><div class="progress-bar"><div class="fill" style="width:9%;background:#19a974;"></div></div></div>
+          <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Brokers</span><span class="text-muted">5%</span></div><div class="progress-bar"><div class="fill" style="width:5%;background:#e8a429;"></div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">Engagement Score Distribution</div>
+        <div style="display:flex;align-items:flex-end;gap:14px;height:160px;padding:0 4px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="width:24px;background:#19a974;border-radius:4px 4px 0 0;height:35%"></div><span class="text-muted" style="font-size:11px;">Hot</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="width:24px;background:#e8a429;border-radius:4px 4px 0 0;height:65%"></div><span class="text-muted" style="font-size:11px;">Warm</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="width:24px;background:#3b6fe0;border-radius:4px 4px 0 0;height:90%"></div><span class="text-muted" style="font-size:11px;">Cold</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;"><div style="width:24px;background:#cdd3e0;border-radius:4px 4px 0 0;height:48%"></div><span class="text-muted" style="font-size:11px;">Dormant</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="contacts-list">
+    <div class="filter-bar">
+      <div class="search-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="contacts-search" placeholder="Search contacts"></div>
+      <div class="fgroup"><label>Type</label><select id="contacts-f-type"><option value="">All Types</option><option>Buyer</option><option>Investor</option><option>Tenant</option><option>Broker</option></select></div>
+      <div class="filter-actions"><button class="btn btn-primary btn-sm" id="contacts-apply">Apply</button><button class="btn btn-sm" id="contacts-clear">Clear</button></div>
+    </div>
+    <div class="table-card">
+      <div class="table-scroll">
+        <table class="data-table" id="contacts-table">
+          <thead><tr>
+            <th class="sortable" data-key="name">Name<span class="sort-arrow">▾</span></th>
+            <th>Phone</th><th>Email</th>
+            <th class="sortable" data-key="type">Type<span class="sort-arrow">▾</span></th>
+            <th>Linked Lead/Deal</th><th>Last Contacted</th>
+          </tr></thead>
+          <tbody id="contacts-tbody"></tbody>
+        </table>
+      </div>
+      <div class="table-foot"><span id="contacts-count">Showing 10 of 3,912 contacts</span><div class="pagination"><div class="page-btn active">1</div><div class="page-btn">2</div><div class="page-btn">3</div><div class="page-btn">…</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CHANNEL PARTNERS ===================== -->
+<div class="view" id="view-channelpartners">
+  <div class="view-header"><div><h1>Channel Partners</h1><p class="sub">Broker and channel partner performance.</p></div>
+    <div class="view-actions"><button class="btn btn-primary"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add Partner</button></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="top-row"><span class="label">Active Partners</span><div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/></svg></div></div><div class="value">86</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Leads Sourced (MTD)</span><div class="kpi-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><div class="value">612</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Bookings Closed</span><div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div></div><div class="value">37</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Brokerage Payable</span><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg></div></div><div class="value">₹64.2L</div></div>
+  </div>
+  <div class="filter-bar">
+    <div class="search-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="cp-search" placeholder="Search channel partners"></div>
+    <div class="fgroup"><label>Tier</label><select id="cp-f-tier"><option value="">All Tiers</option><option>Platinum</option><option>Gold</option><option>Silver</option></select></div>
+    <div class="filter-actions"><button class="btn btn-primary btn-sm" id="cp-apply">Apply</button><button class="btn btn-sm" id="cp-clear">Clear</button></div>
+  </div>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table" id="cp-table">
+        <thead><tr>
+          <th class="sortable" data-key="firm">Firm / Partner<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="tier">Tier<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="leads">Leads Sourced<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="bookings">Bookings<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="conv">Conversion<span class="sort-arrow">▾</span></th>
+          <th>Brokerage Due</th><th>Status</th>
+        </tr></thead>
+        <tbody id="cp-tbody"></tbody>
+      </table>
+    </div>
+    <div class="table-foot"><span>Showing 8 of 86 partners</span><div class="pagination"><div class="page-btn active">1</div><div class="page-btn">2</div><div class="page-btn">3</div></div></div>
+  </div>
+</div>
+
+<!-- ===================== LEAD ACTIVITY ===================== -->
+<div class="view" id="view-leadactivity">
+  <div class="view-header"><div><h1>Lead Activity</h1><p class="sub">Track every interaction across your sales team.</p></div></div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab-group="la-tabs" data-tab="la-activities">Activities</button>
+    <button class="tab-btn" data-tab-group="la-tabs" data-tab="la-agent">Sales Agent Report</button>
+    <button class="tab-btn" data-tab-group="la-tabs" data-tab="la-user">User Analysis</button>
+  </div>
+
+  <div class="tab-panel active" id="la-activities">
+    <div class="filter-bar">
+      <div class="fgroup"><label>Activity Type</label><select id="la-f-type"><option value="">All Types</option><option>Call</option><option>Email</option><option>Site Visit</option><option>Meeting</option><option>WhatsApp</option></select></div>
+      <div class="fgroup"><label>Date Range</label><input type="text" placeholder="Last 30 days" readonly></div>
+      <div class="filter-actions"><button class="btn btn-primary btn-sm" id="la-apply">Apply</button><button class="btn btn-sm" id="la-clear">Clear</button></div>
+    </div>
+    <div class="table-card">
+      <div class="table-scroll">
+        <table class="data-table" id="la-table">
+          <thead><tr><th>Lead</th><th class="sortable" data-key="type">Activity<span class="sort-arrow">▾</span></th><th>Notes</th><th>Agent</th><th class="sortable" data-key="time">Date / Time<span class="sort-arrow">▾</span></th><th>Outcome</th></tr></thead>
+          <tbody id="la-tbody"></tbody>
+        </table>
+      </div>
+      <div class="table-foot"><span>Showing 12 of 4,108 activities</span><div class="pagination"><div class="page-btn active">1</div><div class="page-btn">2</div><div class="page-btn">3</div></div></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="la-agent">
+    <div class="table-card">
+      <div class="table-scroll">
+        <table class="data-table" id="la-agent-table">
+          <thead><tr>
+            <th class="sortable" data-key="agent">Agent<span class="sort-arrow">▾</span></th>
+            <th class="sortable" data-key="calls">Calls<span class="sort-arrow">▾</span></th>
+            <th class="sortable" data-key="emails">Emails<span class="sort-arrow">▾</span></th>
+            <th class="sortable" data-key="visits">Site Visits<span class="sort-arrow">▾</span></th>
+            <th class="sortable" data-key="bookings">Bookings<span class="sort-arrow">▾</span></th>
+            <th class="sortable" data-key="conv">Conversion<span class="sort-arrow">▾</span></th>
+          </tr></thead>
+          <tbody id="la-agent-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="la-user">
+    <div class="grid grid-3">
+      <div class="card"><div class="section-title">Most Active Today</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="flex-between"><div class="person"><div class="av">KM</div><div class="nm">Karan Mehta</div></div><span class="tag">38 actions</span></div>
+          <div class="flex-between"><div class="person"><div class="av">SR</div><div class="nm">Sonal Rao</div></div><span class="tag">31 actions</span></div>
+          <div class="flex-between"><div class="person"><div class="av">DP</div><div class="nm">Dev Patel</div></div><span class="tag">27 actions</span></div>
+        </div>
+      </div>
+      <div class="card"><div class="section-title">Avg Response Time</div><div class="value" style="font-size:30px;font-weight:700;">14 min</div><p class="text-muted" style="font-size:12px;">Across all agents this week, down from 19 min last week.</p></div>
+      <div class="card"><div class="section-title">Activity Mix</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Calls</span><span class="text-muted">48%</span></div><div class="progress-bar"><div class="fill" style="width:48%;background:#3b6fe0;"></div></div></div>
+          <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>WhatsApp</span><span class="text-muted">27%</span></div><div class="progress-bar"><div class="fill" style="width:27%;background:#19a974;"></div></div></div>
+          <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Site Visits</span><span class="text-muted">15%</span></div><div class="progress-bar"><div class="fill" style="width:15%;background:#8b5cf6;"></div></div></div>
+          <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Email</span><span class="text-muted">10%</span></div><div class="progress-bar"><div class="fill" style="width:10%;background:#e8a429;"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===================== DEALS ===================== -->
+<div class="view" id="view-deals">
+  <div class="view-header"><div><h1>Deals</h1><p class="sub">All active and closed deals across projects.</p></div>
+    <div class="view-actions"><button class="btn btn-primary"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>New Deal</button></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="top-row"><span class="label">Open Deals</span><div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2v-1"/></svg></div></div><div class="value">212</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Deal Value (Open)</span><div class="kpi-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></div></div><div class="value">₹142 Cr</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Won This Month</span><div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div></div><div class="value">31</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Avg Deal Cycle</span><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div></div><div class="value">28 days</div></div>
+  </div>
+  <div class="filter-bar">
+    <div class="search-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="deals-search" placeholder="Search deal, customer or unit"></div>
+    <div class="fgroup"><label>Stage</label><select id="deals-f-stage"><option value="">All Stages</option><option>Qualification</option><option>Proposal</option><option>Negotiation</option><option>Won</option><option>Lost</option></select></div>
+    <div class="fgroup"><label>Project</label><select id="deals-f-project"><option value="">All Projects</option><option>Skyline Heights</option><option>Palm Residency</option><option>Greenfield Towers</option><option>Lakeview Enclave</option></select></div>
+    <div class="filter-actions"><button class="btn btn-primary btn-sm" id="deals-apply">Apply</button><button class="btn btn-sm" id="deals-clear">Clear</button></div>
+  </div>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table" id="deals-table">
+        <thead><tr>
+          <th class="sortable" data-key="id">Deal ID<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="customer">Customer<span class="sort-arrow">▾</span></th>
+          <th>Unit</th>
+          <th class="sortable" data-key="value">Deal Value<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="stage">Stage<span class="sort-arrow">▾</span></th>
+          <th>Owner</th>
+          <th class="sortable" data-key="close">Expected Close<span class="sort-arrow">▾</span></th>
+        </tr></thead>
+        <tbody id="deals-tbody"></tbody>
+      </table>
+    </div>
+    <div class="table-foot"><span>Showing 12 of 212 deals</span><div class="pagination"><div class="page-btn active">1</div><div class="page-btn">2</div><div class="page-btn">3</div></div></div>
+  </div>
+</div>
+
+<!-- ===================== PAYMENTS ===================== -->
+<div class="view" id="view-payments">
+  <div class="view-header"><div><h1>Payments</h1><p class="sub">Track installment schedules and collections.</p></div>
+    <div class="view-actions"><button class="btn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button><button class="btn btn-primary"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Record Payment</button></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="top-row"><span class="label">Collected (MTD)</span><div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div></div><div class="value">₹18.6 Cr</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Pending Dues</span><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></div></div><div class="value">₹6.4 Cr</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Overdue</span><div class="kpi-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/></svg></div></div><div class="value">₹1.2 Cr</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Transactions (MTD)</span><div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/></svg></div></div><div class="value">348</div></div>
+  </div>
+  <div class="filter-bar">
+    <div class="search-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="pay-search" placeholder="Search customer or receipt no."></div>
+    <div class="fgroup"><label>Status</label><select id="pay-f-status"><option value="">All Status</option><option>Paid</option><option>Pending</option><option>Overdue</option><option>Partially Paid</option></select></div>
+    <div class="fgroup"><label>Mode</label><select id="pay-f-mode"><option value="">All Modes</option><option>Bank Transfer</option><option>Cheque</option><option>UPI</option><option>Loan Disbursement</option></select></div>
+    <div class="filter-actions"><button class="btn btn-primary btn-sm" id="pay-apply">Apply</button><button class="btn btn-sm" id="pay-clear">Clear</button></div>
+  </div>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table" id="pay-table">
+        <thead><tr>
+          <th class="sortable" data-key="receipt">Receipt No.<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="customer">Customer<span class="sort-arrow">▾</span></th>
+          <th>Unit</th><th>Milestone</th>
+          <th class="sortable" data-key="amount">Amount<span class="sort-arrow">▾</span></th>
+          <th>Mode</th>
+          <th class="sortable" data-key="date">Date<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="status">Status<span class="sort-arrow">▾</span></th>
+        </tr></thead>
+        <tbody id="pay-tbody"></tbody>
+      </table>
+    </div>
+    <div class="table-foot"><span>Showing 12 of 348 transactions</span><div class="pagination"><div class="page-btn active">1</div><div class="page-btn">2</div><div class="page-btn">3</div></div></div>
+  </div>
+</div>
+
+<!-- ===================== UNITS ===================== -->
+<div class="view" id="view-units">
+  <div class="view-header"><div><h1>Units</h1><p class="sub">Live inventory map across all towers and floors.</p></div></div>
+  <div class="filter-bar">
+    <div class="fgroup"><label>Project</label><select id="units-f-project"><option>Skyline Heights</option><option>Palm Residency</option><option>Greenfield Towers</option><option>Lakeview Enclave</option></select></div>
+    <div class="fgroup"><label>Tower</label><select id="units-f-tower"><option>Tower A</option><option>Tower B</option><option>Tower C</option></select></div>
+    <div class="spacer"></div>
+    <div class="flex-gap" style="font-size:12px;"><span class="badge green">Available</span><span class="badge amber">Held</span><span class="badge blue">Booked</span><span class="badge red">Sold</span></div>
+  </div>
+  <div class="card">
+    <div class="section-title">Tower A — Floor-wise Availability</div>
+    <div id="units-grid" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+  <div class="kpi-row" style="margin-top:16px;">
+    <div class="kpi-card"><div class="top-row"><span class="label">Total Units</span></div><div class="value">240</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Available</span></div><div class="value" style="color:var(--success);">86</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Held</span></div><div class="value" style="color:var(--warning);">18</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Booked / Sold</span></div><div class="value" style="color:var(--accent);">136</div></div>
+  </div>
+</div>
+
+<!-- ===================== DUE CUSTOMERS ===================== -->
+<div class="view" id="view-duecustomers">
+  <div class="view-header"><div><h1>Due Customers</h1><p class="sub">Customers with pending or overdue installments.</p></div>
+    <div class="view-actions"><button class="btn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="top-row"><span class="label">Total Due Amount</span><div class="kpi-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></div></div><div class="value">₹6.4 Cr</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Customers Overdue</span><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/></svg></div></div><div class="value">64</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Avg Days Overdue</span><div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div></div><div class="value">17 days</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Reminders Sent (MTD)</span><div class="kpi-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg></div></div><div class="value">412</div></div>
+  </div>
+  <div class="filter-bar">
+    <div class="search-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="due-search" placeholder="Search customer or unit"></div>
+    <div class="fgroup"><label>Overdue Bucket</label><select id="due-f-bucket"><option value="">All</option><option>0-15 days</option><option>16-30 days</option><option>31-60 days</option><option>60+ days</option></select></div>
+    <div class="filter-actions"><button class="btn btn-primary btn-sm" id="due-apply">Apply</button><button class="btn btn-sm" id="due-clear">Clear</button></div>
+  </div>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table" id="due-table">
+        <thead><tr>
+          <th class="sortable" data-key="customer">Customer<span class="sort-arrow">▾</span></th>
+          <th>Unit</th><th>Project</th>
+          <th class="sortable" data-key="due">Due Amount<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="dueDate">Due Date<span class="sort-arrow">▾</span></th>
+          <th class="sortable" data-key="overdue">Days Overdue<span class="sort-arrow">▾</span></th>
+          <th>Last Reminder</th><th>Action</th>
+        </tr></thead>
+        <tbody id="due-tbody"></tbody>
+      </table>
+    </div>
+    <div class="table-foot"><span>Showing 10 of 64 due customers</span><div class="pagination"><div class="page-btn active">1</div><div class="page-btn">2</div></div></div>
+  </div>
+</div>
+<!-- ===================== CAMPAIGNS ===================== -->
+<div class="view" id="view-campaigns">
+  <div class="view-header"><div><h1>Campaigns</h1><p class="sub">Run and track WhatsApp, SMS and email campaigns.</p></div>
+    <div class="view-actions"><button class="btn btn-primary"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>New Campaign</button></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab-group="camp-tabs" data-tab="camp-lists">Lists</button>
+    <button class="tab-btn" data-tab-group="camp-tabs" data-tab="camp-bulk">Bulk</button>
+    <button class="tab-btn" data-tab-group="camp-tabs" data-tab="camp-setup">Setup</button>
+    <button class="tab-btn" data-tab-group="camp-tabs" data-tab="camp-templates">Templates</button>
+    <button class="tab-btn" data-tab-group="camp-tabs" data-tab="camp-triggers">Triggers</button>
+    <button class="tab-btn" data-tab-group="camp-tabs" data-tab="camp-workflows">Workflows</button>
+  </div>
+
+  <div class="tab-panel active" id="camp-lists">
+    <div class="filter-bar">
+      <div class="search-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="camp-search" placeholder="Search campaigns"></div>
+      <div class="fgroup"><label>Channel</label><select id="camp-f-channel"><option value="">All Channels</option><option>WhatsApp</option><option>SMS</option><option>Email</option></select></div>
+      <div class="fgroup"><label>Status</label><select id="camp-f-status"><option value="">All Status</option><option>Active</option><option>Scheduled</option><option>Completed</option><option>Paused</option></select></div>
+      <div class="filter-actions"><button class="btn btn-primary btn-sm" id="camp-apply">Apply</button><button class="btn btn-sm" id="camp-clear">Clear</button></div>
+    </div>
+    <div class="table-card">
+      <div class="table-scroll">
+        <table class="data-table" id="camp-table">
+          <thead><tr>
+            <th class="sortable" data-key="name">Campaign<span class="sort-arrow">▾</span></th>
+            <th>Channel</th>
+            <th class="sortable" data-key="audience">Audience<span class="sort-arrow">▾</span></th>
+            <th class="sortable" data-key="sent">Sent<span class="sort-arrow">▾</span></th>
+            <th class="sortable" data-key="opened">Opened</th>
+            <th class="sortable" data-key="status">Status<span class="sort-arrow">▾</span></th>
+            <th>Created</th>
+          </tr></thead>
+          <tbody id="camp-tbody"></tbody>
+        </table>
+      </div>
+      <div class="table-foot"><span>Showing 9 of 47 campaigns</span><div class="pagination"><div class="page-btn active">1</div><div class="page-btn">2</div></div></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="camp-bulk">
+    <div class="card">
+      <div class="section-title">Send a Bulk Message</div>
+      <div class="grid grid-2">
+        <div class="form-row"><label>Channel</label><select><option>WhatsApp</option><option>SMS</option><option>Email</option></select></div>
+        <div class="form-row"><label>Audience List</label><select><option>All New Leads (812)</option><option>Site Visit Pending (486)</option><option>Negotiation Stage (212)</option><option>Past Customers (1,284)</option></select></div>
+      </div>
+      <div class="form-row"><label>Template</label><select><option>Festive Offer — Diwali Bonanza</option><option>Site Visit Reminder</option><option>Payment Due Reminder</option><option>New Tower Launch</option></select></div>
+      <div class="form-row"><label>Preview</label><textarea rows="4" readonly>Hi {{name}}, exciting news from EstateFlow Realty! Limited-period offer on 2 &amp; 3 BHK homes at Skyline Heights. Reply VISIT to book a free site tour.</textarea></div>
+      <div class="flex-between"><span class="text-muted" style="font-size:12px;">Estimated reach: 812 contacts · Cost: ₹1,624</span><button class="btn btn-primary">Schedule Send</button></div>
+    </div>
+    <div class="card"><div class="section-title">Recent Bulk Sends</div>
+      <div class="table-scroll"><table class="data-table">
+        <thead><tr><th>Batch</th><th>Channel</th><th>Audience</th><th>Sent</th><th>Delivered</th><th>Date</th></tr></thead>
+        <tbody>
+          <tr><td>Diwali Bonanza Blast</td><td><span class="badge green">WhatsApp</span></td><td>All New Leads</td><td>812</td><td>798</td><td>12 Jun 2026</td></tr>
+          <tr><td>Weekend Site Visit Push</td><td><span class="badge blue">SMS</span></td><td>Site Visit Pending</td><td>486</td><td>481</td><td>08 Jun 2026</td></tr>
+          <tr><td>Payment Reminder Round 2</td><td><span class="badge purple">Email</span></td><td>Due Customers</td><td>64</td><td>60</td><td>03 Jun 2026</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="camp-setup">
+    <div class="card">
+      <div class="section-title">Channel Connections</div>
+      <div class="flex-between" style="padding:12px 0;border-bottom:1px solid var(--border);"><div class="flex-gap"><div class="kpi-icon green" style="width:30px;height:30px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div><div><div style="font-weight:600;">WhatsApp Business API</div><div class="text-muted" style="font-size:11px;">Connected — +91 98200 11234</div></div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="flex-between" style="padding:12px 0;border-bottom:1px solid var(--border);"><div class="flex-gap"><div class="kpi-icon blue" style="width:30px;height:30px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div><div><div style="font-weight:600;">SMS Gateway</div><div class="text-muted" style="font-size:11px;">Connected — Karix Mobile</div></div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="flex-between" style="padding:12px 0;"><div class="flex-gap"><div class="kpi-icon purple" style="width:30px;height:30px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div><div><div style="font-weight:600;">Email (SMTP)</div><div class="text-muted" style="font-size:11px;">Not connected</div></div></div><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+    </div>
+    <div class="card"><div class="section-title">Sender Identity</div>
+      <div class="grid grid-2"><div class="form-row"><label>Display Name</label><input type="text" value="EstateFlow Realty"></div><div class="form-row"><label>Reply-to Number</label><input type="text" value="+91 98200 11234"></div></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="camp-templates">
+    <div class="filter-bar"><div class="search-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" placeholder="Search templates"></div><div class="spacer"></div><button class="btn btn-primary btn-sm">New Template</button></div>
+    <div class="grid grid-3">
+      <div class="card"><span class="badge green">Approved</span><h3 style="margin:10px 0 6px;font-size:14px;">Festive Offer — Diwali Bonanza</h3><p class="text-muted" style="font-size:12px;">WhatsApp · Used in 4 campaigns</p></div>
+      <div class="card"><span class="badge green">Approved</span><h3 style="margin:10px 0 6px;font-size:14px;">Site Visit Reminder</h3><p class="text-muted" style="font-size:12px;">SMS · Used in 9 campaigns</p></div>
+      <div class="card"><span class="badge amber">Pending Review</span><h3 style="margin:10px 0 6px;font-size:14px;">New Tower Launch</h3><p class="text-muted" style="font-size:12px;">WhatsApp · Used in 0 campaigns</p></div>
+      <div class="card"><span class="badge green">Approved</span><h3 style="margin:10px 0 6px;font-size:14px;">Payment Due Reminder</h3><p class="text-muted" style="font-size:12px;">Email · Used in 12 campaigns</p></div>
+      <div class="card"><span class="badge gray">Draft</span><h3 style="margin:10px 0 6px;font-size:14px;">Anniversary Greetings</h3><p class="text-muted" style="font-size:12px;">WhatsApp · Used in 0 campaigns</p></div>
+      <div class="card"><span class="badge green">Approved</span><h3 style="margin:10px 0 6px;font-size:14px;">Booking Confirmation</h3><p class="text-muted" style="font-size:12px;">SMS · Used in 31 campaigns</p></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="camp-triggers">
+    <div class="card">
+      <div class="section-title">Automated Triggers<span class="link">+ Add trigger</span></div>
+      <div class="table-scroll"><table class="data-table">
+        <thead><tr><th>Trigger</th><th>Event</th><th>Action</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-main">New Lead Welcome</td><td>Lead created</td><td>Send WhatsApp template "Welcome"</td><td><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+          <tr><td class="cell-main">Site Visit Reminder</td><td>24 hrs before scheduled visit</td><td>Send SMS reminder</td><td><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+          <tr><td class="cell-main">Payment Overdue Nudge</td><td>Installment overdue by 3 days</td><td>Send WhatsApp + Email</td><td><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+          <tr><td class="cell-main">Cold Lead Re-engagement</td><td>No activity for 14 days</td><td>Add to nurture campaign</td><td><label class="toggle"><input type="checkbox"><span class="slider"></span></label></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="camp-workflows">
+    <div class="card">
+      <div class="section-title">Active Workflows</div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card" style="background:var(--bg-card-alt);">
+          <div class="flex-between"><div style="font-weight:700;">New Lead → Site Visit Nurture</div><span class="badge green">Active</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap;">
+            <span class="tag">Lead Created</span><span class="text-muted">→</span><span class="tag">Wait 1 hr</span><span class="text-muted">→</span><span class="tag">WhatsApp Welcome</span><span class="text-muted">→</span><span class="tag">Wait 2 days</span><span class="text-muted">→</span><span class="tag">SMS Site Visit Offer</span>
+          </div>
+        </div>
+        <div class="card" style="background:var(--bg-card-alt);">
+          <div class="flex-between"><div style="font-weight:700;">Payment Due Escalation</div><span class="badge green">Active</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap;">
+            <span class="tag">Due Date - 3 days</span><span class="text-muted">→</span><span class="tag">WhatsApp Reminder</span><span class="text-muted">→</span><span class="tag">Due Date + 1 day</span><span class="text-muted">→</span><span class="tag">Call Task for Agent</span>
+          </div>
+        </div>
+        <div class="card" style="background:var(--bg-card-alt);">
+          <div class="flex-between"><div style="font-weight:700;">Post-Booking Onboarding</div><span class="badge gray">Paused</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap;">
+            <span class="tag">Booking Confirmed</span><span class="text-muted">→</span><span class="tag">Email Welcome Kit</span><span class="text-muted">→</span><span class="tag">Wait 7 days</span><span class="text-muted">→</span><span class="tag">Feedback Call Task</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===================== REPORTS: LEAD ANALYSIS (landing) ===================== -->
+<div class="view" id="view-reports-overview">
+  <div class="view-header"><div><h1>Reports — Lead Analysis</h1><p class="sub">Funnel and source performance across all projects.</p></div>
+    <div class="view-actions"><select class="btn"><option>Last 30 days</option><option>This quarter</option></select></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="top-row"><span class="label">Leads Generated</span></div><div class="value">2,348</div><div class="delta up">12.4%<span class="vs">vs last period</span></div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Qualified Leads</span></div><div class="value">1,402</div><div class="delta up">7.8%<span class="vs">vs last period</span></div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Conversion Rate</span></div><div class="value">4.0%</div><div class="delta down">0.6%<span class="vs">vs last period</span></div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Cost per Lead</span></div><div class="value">₹612</div><div class="delta up">3.1%<span class="vs">vs last period</span></div></div>
+  </div>
+  <div class="grid grid-2">
+    <div class="card"><div class="section-title">Leads by Source</div>
+      <div class="table-scroll"><table class="data-table">
+        <thead><tr><th>Source</th><th>Leads</th><th>Qualified</th><th>Bookings</th><th>Conversion</th></tr></thead>
+        <tbody>
+          <tr><td>Website &amp; Portals</td><td>798</td><td>512</td><td>34</td><td>4.3%</td></tr>
+          <tr><td>Channel Partners</td><td>611</td><td>398</td><td>37</td><td>6.1%</td></tr>
+          <tr><td>Referrals</td><td>517</td><td>344</td><td>16</td><td>3.1%</td></tr>
+          <tr><td>Walk-ins</td><td>422</td><td>148</td><td>7</td><td>1.7%</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="card"><div class="section-title">Project-wise Funnel</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Skyline Heights</span><span class="text-muted">812 leads</span></div><div class="progress-bar"><div class="fill" style="width:80%;background:#3b6fe0;"></div></div></div>
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Palm Residency</span><span class="text-muted">604 leads</span></div><div class="progress-bar"><div class="fill" style="width:60%;background:#8b5cf6;"></div></div></div>
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Greenfield Towers</span><span class="text-muted">540 leads</span></div><div class="progress-bar"><div class="fill" style="width:53%;background:#19a974;"></div></div></div>
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Lakeview Enclave</span><span class="text-muted">392 leads</span></div><div class="progress-bar"><div class="fill" style="width:38%;background:#e8a429;"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== REPORTS: CP SOURCING ===================== -->
+<div class="view" id="view-reports-cpsourcing">
+  <div class="view-header"><div><h1>Reports — CP Sourcing</h1><p class="sub">Channel partner sourcing &amp; call activity performance.</p></div></div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="top-row"><span class="label">Active CPs</span></div><div class="value">86</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Calls Made</span></div><div class="value">1,840</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Leads Sourced</span></div><div class="value">612</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Avg Calls / CP</span></div><div class="value">21.4</div></div>
+  </div>
+  <div class="filter-bar">
+    <div class="fgroup"><label>CP Tier</label><select><option>All Tiers</option><option>Platinum</option><option>Gold</option><option>Silver</option></select></div>
+    <div class="fgroup"><label>Date Range</label><input type="text" readonly value="Last 30 days"></div>
+    <div class="filter-actions"><button class="btn btn-primary btn-sm">Apply</button><button class="btn btn-sm">Clear</button></div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div style="padding:18px 20px 0;"><div class="section-title">CP Call Activity</div></div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr class="group-row"><th rowspan="2">Channel Partner</th><th colspan="3">Calls</th><th colspan="2">Outcome</th><th rowspan="2">Leads Sourced</th></tr>
+          <tr><th>Made</th><th>Connected</th><th>Missed</th><th>Interested</th><th>Not Interested</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="cell-main">Horizon Realty Partners</td><td>142</td><td>118</td><td>24</td><td>52</td><td>66</td><td>18</td></tr>
+          <tr><td class="cell-main">Metro Estates Brokers</td><td>128</td><td>104</td><td>24</td><td>41</td><td>63</td><td>14</td></tr>
+          <tr><td class="cell-main">Nexus Property Advisors</td><td>96</td><td>81</td><td>15</td><td>33</td><td>48</td><td>11</td></tr>
+          <tr><td class="cell-main">Prime Channel Associates</td><td>87</td><td>70</td><td>17</td><td>29</td><td>41</td><td>9</td></tr>
+          <tr><td class="cell-main">Urban Nest Consultants</td><td>74</td><td>58</td><td>16</td><td>22</td><td>36</td><td>7</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card"><div class="section-title">Sales Agent — Sourcing Manager Mapping</div>
+    <div class="table-scroll"><table class="data-table">
+      <thead><tr><th>Sales Agent</th><th>Sourcing Manager</th><th>CPs Managed</th><th>Leads Sourced</th><th>Bookings</th></tr></thead>
+      <tbody>
+        <tr><td>Karan Mehta</td><td>Ritu Sharma</td><td>14</td><td>186</td><td>11</td></tr>
+        <tr><td>Sonal Rao</td><td>Ritu Sharma</td><td>11</td><td>154</td><td>9</td></tr>
+        <tr><td>Dev Patel</td><td>Imran Sheikh</td><td>9</td><td>121</td><td>8</td></tr>
+        <tr><td>Neha Gupta</td><td>Imran Sheikh</td><td>8</td><td>98</td><td>5</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ===================== REPORTS: CALL ANALYSIS (empty state default) ===================== -->
+<div class="view" id="view-reports-callanalysis">
+  <div class="view-header"><div><h1>Reports — Call Analysis</h1><p class="sub">Aggregate call performance by agent and outcome.</p></div></div>
+  <div class="filter-bar">
+    <div class="fgroup"><label>Agent</label><select id="ca-f-agent"><option value="">Select agent</option><option>Karan Mehta</option><option>Sonal Rao</option><option>Dev Patel</option><option>Neha Gupta</option></select></div>
+    <div class="fgroup"><label>Date Range</label><input type="text" id="ca-f-date" placeholder="Select date range"></div>
+    <div class="filter-actions"><button class="btn btn-primary btn-sm" id="ca-apply">Apply</button><button class="btn btn-sm" id="ca-clear">Clear</button></div>
+  </div>
+  <div class="card" id="ca-results-wrap">
+    <div class="empty-state">
+      <div class="ic-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+      <h3>Select filters to view call analysis</h3>
+      <p>Choose an agent and date range above, then click Apply to load call performance data.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== REPORTS: CALL LOGS ===================== -->
+<div class="view" id="view-reports-calllogs">
+  <div class="view-header"><div><h1>Reports — Call Logs</h1><p class="sub">Detailed call records and agent performance.</p></div></div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab-group="cl-tabs" data-tab="cl-summary">Summary</button>
+    <button class="tab-btn" data-tab-group="cl-tabs" data-tab="cl-performance">Performance</button>
+  </div>
+  <div class="tab-panel active" id="cl-summary">
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="top-row"><span class="label">Total Calls</span></div><div class="value">3,214</div></div>
+      <div class="kpi-card"><div class="top-row"><span class="label">Connected</span></div><div class="value">2,486</div></div>
+      <div class="kpi-card"><div class="top-row"><span class="label">Missed</span></div><div class="value">728</div></div>
+      <div class="kpi-card"><div class="top-row"><span class="label">Avg Duration</span></div><div class="value">3m 42s</div></div>
+    </div>
+    <div class="filter-bar">
+      <div class="search-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" placeholder="Search by lead or agent"></div>
+      <div class="fgroup"><label>Status</label><select><option>All</option><option>Connected</option><option>Missed</option><option>Rejected</option></select></div>
+      <div class="filter-actions"><button class="btn btn-primary btn-sm">Apply</button><button class="btn btn-sm">Clear</button></div>
+    </div>
+    <div class="table-card"><div class="table-scroll"><table class="data-table">
+      <thead><tr><th>Lead</th><th>Agent</th><th>Type</th><th>Duration</th><th>Status</th><th>Date / Time</th></tr></thead>
+      <tbody>
+        <tr><td>Rahul Sharma</td><td>Karan Mehta</td><td>Outgoing</td><td>4m 12s</td><td><span class="badge green">Connected</span></td><td>17 Jun, 10:42 AM</td></tr>
+        <tr><td>Anjali Nair</td><td>Sonal Rao</td><td>Incoming</td><td>2m 05s</td><td><span class="badge green">Connected</span></td><td>17 Jun, 10:18 AM</td></tr>
+        <tr><td>Vikram Kulkarni</td><td>Karan Mehta</td><td>Outgoing</td><td>—</td><td><span class="badge red">Missed</span></td><td>17 Jun, 9:55 AM</td></tr>
+        <tr><td>Sneha Mehta</td><td>Dev Patel</td><td>Outgoing</td><td>6m 30s</td><td><span class="badge green">Connected</span></td><td>16 Jun, 5:40 PM</td></tr>
+        <tr><td>Arjun Joshi</td><td>Neha Gupta</td><td>Incoming</td><td>—</td><td><span class="badge amber">Rejected</span></td><td>16 Jun, 4:12 PM</td></tr>
+      </tbody>
+    </table></div></div>
+  </div>
+  <div class="tab-panel" id="cl-performance">
+    <div class="table-card"><div class="table-scroll"><table class="data-table">
+      <thead><tr><th>Agent</th><th>Calls Made</th><th>Connected</th><th>Connect Rate</th><th>Avg Duration</th><th>Talk Time (hrs)</th></tr></thead>
+      <tbody>
+        <tr><td>Karan Mehta</td><td>912</td><td>724</td><td>79.4%</td><td>4m 02s</td><td>48.6</td></tr>
+        <tr><td>Sonal Rao</td><td>804</td><td>638</td><td>79.4%</td><td>3m 28s</td><td>36.9</td></tr>
+        <tr><td>Dev Patel</td><td>756</td><td>568</td><td>75.1%</td><td>3m 55s</td><td>37.0</td></tr>
+        <tr><td>Neha Gupta</td><td>742</td><td>556</td><td>74.9%</td><td>3m 12s</td><td>29.6</td></tr>
+      </tbody>
+    </table></div></div>
+  </div>
+</div>
+
+<!-- ===================== REPORTS: IVR CALLS ===================== -->
+<div class="view" id="view-reports-ivr">
+  <div class="view-header"><div><h1>Reports — IVR Calls</h1><p class="sub">Inbound IVR routing and resolution tracking.</p></div></div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="top-row"><span class="label">Total IVR Calls</span></div><div class="value">1,406</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Resolved by IVR</span></div><div class="value">512</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Routed to Agent</span></div><div class="value">894</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Abandoned</span></div><div class="value">0</div></div>
+  </div>
+  <div class="table-card"><div class="table-scroll"><table class="data-table">
+    <thead><tr><th>Caller</th><th>IVR Path</th><th>Routed To</th><th>Resolution</th><th>Duration</th><th>Date / Time</th></tr></thead>
+    <tbody>
+      <tr><td>+91 98XXX 41203</td><td>Sales → Skyline Heights</td><td>Karan Mehta</td><td><span class="badge green">Resolved</span></td><td>2m 18s</td><td>17 Jun, 11:02 AM</td></tr>
+      <tr><td>+91 99XXX 88210</td><td>Sales → Palm Residency</td><td>Sonal Rao</td><td><span class="badge green">Resolved</span></td><td>3m 45s</td><td>17 Jun, 10:38 AM</td></tr>
+      <tr><td>+91 97XXX 22340</td><td>Support → Payments</td><td>IVR Self-service</td><td><span class="badge blue">Auto-resolved</span></td><td>1m 02s</td><td>17 Jun, 9:50 AM</td></tr>
+      <tr><td>+91 96XXX 55012</td><td>Sales → Greenfield Towers</td><td>Dev Patel</td><td><span class="badge green">Resolved</span></td><td>4m 10s</td><td>16 Jun, 6:15 PM</td></tr>
+      <tr><td>+91 98XXX 76402</td><td>Support → General Query</td><td>Neha Gupta</td><td><span class="badge amber">Callback Requested</span></td><td>0m 58s</td><td>16 Jun, 5:02 PM</td></tr>
+    </tbody>
+  </table></div></div>
+</div>
+
+<!-- ===================== REPORTS: VISIT ANALYSIS ===================== -->
+<div class="view" id="view-reports-visitanalysis">
+  <div class="view-header"><div><h1>Reports — Visit Analysis</h1><p class="sub">Site visit conversion and agent performance.</p></div></div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="top-row"><span class="label">Visits Scheduled</span></div><div class="value">612</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Visits Completed</span></div><div class="value">486</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">No-shows</span></div><div class="value">76</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Visit → Booking</span></div><div class="value">19.3%</div></div>
+  </div>
+  <div class="filter-bar">
+    <div class="fgroup"><label>Project</label><select><option>All Projects</option><option>Skyline Heights</option><option>Palm Residency</option></select></div>
+    <div class="fgroup"><label>Date Range</label><input type="text" readonly value="Last 30 days"></div>
+    <div class="filter-actions"><button class="btn btn-primary btn-sm">Apply</button><button class="btn btn-sm">Clear</button></div>
+  </div>
+  <div class="table-card"><div class="table-scroll"><table class="data-table">
+    <thead><tr><th>Customer</th><th>Project</th><th>Agent</th><th>Scheduled</th><th>Status</th><th>Outcome</th></tr></thead>
+    <tbody>
+      <tr><td>Rahul Sharma</td><td>Skyline Heights</td><td>Karan Mehta</td><td>17 Jun, 4:00 PM</td><td><span class="badge blue">Confirmed</span></td><td>—</td></tr>
+      <tr><td>Priya Singh</td><td>Palm Residency</td><td>Sonal Rao</td><td>15 Jun, 3:00 PM</td><td><span class="badge green">Completed</span></td><td>Negotiation</td></tr>
+      <tr><td>Manoj Tiwari</td><td>Greenfield Towers</td><td>Dev Patel</td><td>14 Jun, 11:00 AM</td><td><span class="badge red">No-show</span></td><td>—</td></tr>
+      <tr><td>Kavita Reddy</td><td>Lakeview Enclave</td><td>Neha Gupta</td><td>12 Jun, 5:30 PM</td><td><span class="badge green">Completed</span></td><td>Booked</td></tr>
+      <tr><td>Suresh Iyer</td><td>Skyline Heights</td><td>Karan Mehta</td><td>10 Jun, 2:00 PM</td><td><span class="badge green">Completed</span></td><td>Follow-up</td></tr>
+    </tbody>
+  </table></div></div>
+</div>
+
+<!-- ===================== REPORTS: ATTENDANCE (empty state default) ===================== -->
+<div class="view" id="view-reports-attendance">
+  <div class="view-header"><div><h1>Reports — Attendance</h1><p class="sub">Daily attendance and check-in/out records for field staff.</p></div></div>
+  <div class="filter-bar">
+    <div class="fgroup"><label>Team</label><select id="att-f-team"><option value="">Select team</option><option>Sales — Skyline Heights</option><option>Sales — Palm Residency</option><option>Channel Partner Desk</option></select></div>
+    <div class="fgroup"><label>Date</label><input type="date" id="att-f-date"></div>
+    <div class="filter-actions"><button class="btn btn-primary btn-sm" id="att-apply">Apply</button><button class="btn btn-sm" id="att-clear">Clear</button></div>
+  </div>
+  <div class="card" id="att-results-wrap">
+    <div class="empty-state">
+      <div class="ic-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div>
+      <h3>No attendance data to display</h3>
+      <p>Select a team and date above, then click Apply to load attendance records.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== REPORTS: EMPLOYEE TRACKING ===================== -->
+<div class="view" id="view-reports-employeetracking">
+  <div class="view-header"><div><h1>Reports — Employee Tracking</h1><p class="sub">Live and historical field location tracking.</p></div></div>
+  <div class="filter-bar">
+    <div class="fgroup"><label>Employee</label><select id="et-f-emp"><option value="">All Employees</option><option>Karan Mehta</option><option>Sonal Rao</option><option>Dev Patel</option><option>Neha Gupta</option></select></div>
+    <div class="fgroup"><label>Date</label><input type="date" id="et-f-date"></div>
+    <div class="filter-actions"><button class="btn btn-primary btn-sm" id="et-apply">Apply</button><button class="btn btn-sm" id="et-clear">Clear</button></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="top-row"><span class="label">Checked In</span></div><div class="value">18 / 22</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">In Field</span></div><div class="value">11</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">At Office</span></div><div class="value">7</div></div>
+    <div class="kpi-card"><div class="top-row"><span class="label">Avg Distance Today</span></div><div class="value">14.2 km</div></div>
+  </div>
+  <div class="table-card"><div class="table-scroll"><table class="data-table">
+    <thead><tr><th>Employee</th><th>Status</th><th>Last Location</th><th>Check-in</th><th>Distance Covered</th><th>Last Updated</th></tr></thead>
+    <tbody>
+      <tr><td><div class="person"><div class="av">KM</div><div class="nm">Karan Mehta</div></div></td><td><span class="badge green">In Field</span></td><td>Skyline Heights Site Office</td><td>9:32 AM</td><td>18.4 km</td><td>2 min ago</td></tr>
+      <tr><td><div class="person"><div class="av">SR</div><div class="nm">Sonal Rao</div></div></td><td><span class="badge blue">At Office</span></td><td>HQ — Bandra Kurla Complex</td><td>9:15 AM</td><td>6.2 km</td><td>5 min ago</td></tr>
+      <tr><td><div class="person"><div class="av">DP</div><div class="nm">Dev Patel</div></div></td><td><span class="badge green">In Field</span></td><td>Greenfield Towers Site</td><td>10:02 AM</td><td>22.1 km</td><td>1 min ago</td></tr>
+      <tr><td><div class="person"><div class="av">NG</div><div class="nm">Neha Gupta</div></div></td><td><span class="badge amber">On Break</span></td><td>Palm Residency Site Office</td><td>9:48 AM</td><td>9.8 km</td><td>11 min ago</td></tr>
+      <tr><td><div class="person"><div class="av">RJ</div><div class="nm">Rohan Joshi</div></div></td><td><span class="badge gray">Not Checked In</span></td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table></div></div>
+</div>
+<!-- ===================== ORG CHART ===================== -->
+<div class="view" id="view-orgchart">
+  <div class="view-header"><div><h1>Org Chart</h1><p class="sub">Reporting structure across the sales organization.</p></div></div>
+  <div class="card" style="overflow-x:auto;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:28px;min-width:900px;padding:20px 0;">
+      <div class="card" style="display:inline-block;text-align:center;padding:14px 22px;background:var(--accent);color:#fff;border:none;">
+        <div style="font-weight:700;font-size:13px;">Aditya Rao</div><div style="font-size:11px;opacity:.85;">CEO &amp; Founder</div>
+      </div>
+      <div style="width:2px;height:20px;background:var(--border-strong);"></div>
+      <div class="card" style="display:inline-block;text-align:center;padding:12px 20px;">
+        <div style="font-weight:700;font-size:13px;">Meera Iyer</div><div class="text-muted" style="font-size:11px;">VP — Sales</div>
+      </div>
+      <div style="width:2px;height:20px;background:var(--border-strong);"></div>
+      <div style="display:flex;gap:48px;position:relative;">
+        <div style="position:absolute;top:-20px;left:50%;width:80%;height:20px;border-top:2px solid var(--border-strong);transform:translateX(-50%);"></div>
+        <div class="card" style="text-align:center;padding:12px 18px;">
+          <div style="font-weight:700;font-size:13px;">Ritu Sharma</div><div class="text-muted" style="font-size:11px;">Sourcing Manager — North</div>
+        </div>
+        <div class="card" style="text-align:center;padding:12px 18px;">
+          <div style="font-weight:700;font-size:13px;">Imran Sheikh</div><div class="text-muted" style="font-size:11px;">Sourcing Manager — South</div>
+        </div>
+        <div class="card" style="text-align:center;padding:12px 18px;">
+          <div style="font-weight:700;font-size:13px;">Priya Kapoor</div><div class="text-muted" style="font-size:11px;">Sales Admin</div>
+        </div>
+      </div>
+      <div style="width:2px;height:20px;background:var(--border-strong);"></div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;">
+        <div class="card" style="text-align:center;padding:10px 16px;background:var(--bg-card-alt);"><div style="font-weight:600;font-size:12px;">Karan Mehta</div><div class="text-muted" style="font-size:10.5px;">Sales Agent</div></div>
+        <div class="card" style="text-align:center;padding:10px 16px;background:var(--bg-card-alt);"><div style="font-weight:600;font-size:12px;">Sonal Rao</div><div class="text-muted" style="font-size:10.5px;">Sales Agent</div></div>
+        <div class="card" style="text-align:center;padding:10px 16px;background:var(--bg-card-alt);"><div style="font-weight:600;font-size:12px;">Dev Patel</div><div class="text-muted" style="font-size:10.5px;">Sales Agent</div></div>
+        <div class="card" style="text-align:center;padding:10px 16px;background:var(--bg-card-alt);"><div style="font-weight:600;font-size:12px;">Neha Gupta</div><div class="text-muted" style="font-size:10.5px;">Sales Agent</div></div>
+        <div class="card" style="text-align:center;padding:10px 16px;background:var(--bg-card-alt);"><div style="font-weight:600;font-size:12px;">Rohan Joshi</div><div class="text-muted" style="font-size:10.5px;">Tele-caller</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TEAM MEMBERS ===================== -->
+<div class="view" id="view-teammembers">
+  <div class="view-header"><div><h1>Team Members</h1><p class="sub">Manage users, teams and permissions.</p></div>
+    <div class="view-actions"><button class="btn btn-primary"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Invite User</button></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab-group="tm-tabs" data-tab="tm-users">Users</button>
+    <button class="tab-btn" data-tab-group="tm-tabs" data-tab="tm-teams">Teams</button>
+    <button class="tab-btn" data-tab-group="tm-tabs" data-tab="tm-orgchart">Org Chart</button>
+    <button class="tab-btn" data-tab-group="tm-tabs" data-tab="tm-distribution">Distribution</button>
+    <button class="tab-btn" data-tab-group="tm-tabs" data-tab="tm-deleted">Deleted Users</button>
+  </div>
+
+  <div class="tab-panel active" id="tm-users">
+    <div class="filter-bar">
+      <div class="search-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="tm-search" placeholder="Search users"></div>
+      <div class="fgroup"><label>Role</label><select id="tm-f-role"><option value="">All Roles</option><option>Sales Agent</option><option>Sourcing Manager</option><option>Tele-caller</option><option>Sales Admin</option></select></div>
+      <div class="fgroup"><label>Status</label><select id="tm-f-status"><option value="">All Status</option><option>Active</option><option>Inactive</option></select></div>
+      <div class="filter-actions"><button class="btn btn-primary btn-sm" id="tm-apply">Apply</button><button class="btn btn-sm" id="tm-clear">Clear</button></div>
+    </div>
+    <div class="table-card">
+      <div class="table-scroll">
+        <table class="data-table" id="tm-table">
+          <thead><tr>
+            <th class="sortable" data-key="name">Name<span class="sort-arrow">▾</span></th>
+            <th>Email</th>
+            <th class="sortable" data-key="role">Role<span class="sort-arrow">▾</span></th>
+            <th>Team</th>
+            <th class="sortable" data-key="leads">Leads Assigned<span class="sort-arrow">▾</span></th>
+            <th>Status</th><th></th>
+          </tr></thead>
+          <tbody id="tm-tbody"></tbody>
+        </table>
+      </div>
+      <div class="table-foot"><span>Showing 9 of 22 users</span><div class="pagination"><div class="page-btn active">1</div><div class="page-btn">2</div></div></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tm-teams">
+    <div class="grid grid-3">
+      <div class="card"><div class="flex-between"><h3 style="margin:0;font-size:14px;">Sales — North</h3><span class="tag">6 members</span></div><p class="text-muted" style="font-size:12px;margin:8px 0 12px;">Lead: Ritu Sharma</p><div style="display:flex;gap:-4px;"><div class="av" style="width:26px;height:26px;border-radius:50%;background:var(--accent-light);color:var(--accent-dark);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:-6px;border:2px solid #fff;">KM</div><div class="av" style="width:26px;height:26px;border-radius:50%;background:var(--accent-light);color:var(--accent-dark);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:-6px;border:2px solid #fff;">SR</div><div class="av" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card-alt);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid #fff;">+4</div></div></div>
+      <div class="card"><div class="flex-between"><h3 style="margin:0;font-size:14px;">Sales — South</h3><span class="tag">5 members</span></div><p class="text-muted" style="font-size:12px;margin:8px 0 12px;">Lead: Imran Sheikh</p><div style="display:flex;"><div class="av" style="width:26px;height:26px;border-radius:50%;background:var(--accent-light);color:var(--accent-dark);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:-6px;border:2px solid #fff;">DP</div><div class="av" style="width:26px;height:26px;border-radius:50%;background:var(--accent-light);color:var(--accent-dark);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:-6px;border:2px solid #fff;">NG</div><div class="av" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card-alt);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid #fff;">+3</div></div></div>
+      <div class="card"><div class="flex-between"><h3 style="margin:0;font-size:14px;">Tele-calling Desk</h3><span class="tag">8 members</span></div><p class="text-muted" style="font-size:12px;margin:8px 0 12px;">Lead: Priya Kapoor</p><div style="display:flex;"><div class="av" style="width:26px;height:26px;border-radius:50%;background:var(--accent-light);color:var(--accent-dark);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:-6px;border:2px solid #fff;">RJ</div><div class="av" style="width:26px;height:26px;border-radius:50%;background:var(--bg-card-alt);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid #fff;">+7</div></div></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tm-orgchart">
+    <div class="card"><p class="text-muted" style="font-size:12.5px;margin:0 0 12px;">Same hierarchy as the dedicated Org Chart page, shown here for quick reference.</p>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <span class="tag">Aditya Rao — CEO</span><span class="text-muted">↓</span><span class="tag">Meera Iyer — VP Sales</span><span class="text-muted">↓</span>
+        <div style="display:flex;gap:10px;"><span class="tag">Ritu Sharma</span><span class="tag">Imran Sheikh</span><span class="tag">Priya Kapoor</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tm-distribution">
+    <div class="card"><div class="section-title">Lead Distribution by Agent</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Karan Mehta</span><span class="text-muted">412 leads</span></div><div class="progress-bar"><div class="fill" style="width:88%;background:#3b6fe0;"></div></div></div>
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Sonal Rao</span><span class="text-muted">368 leads</span></div><div class="progress-bar"><div class="fill" style="width:78%;background:#8b5cf6;"></div></div></div>
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Dev Patel</span><span class="text-muted">301 leads</span></div><div class="progress-bar"><div class="fill" style="width:64%;background:#19a974;"></div></div></div>
+        <div><div class="flex-between" style="margin-bottom:5px;font-size:12px;"><span>Neha Gupta</span><span class="text-muted">276 leads</span></div><div class="progress-bar"><div class="fill" style="width:59%;background:#e8a429;"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tm-deleted">
+    <div class="table-card"><div class="table-scroll"><table class="data-table">
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Deleted On</th><th>Deleted By</th></tr></thead>
+      <tbody>
+        <tr><td>Aman Verma</td><td>aman.verma@estateflow.in</td><td>Sales Agent</td><td>02 May 2026</td><td>Priya Kapoor</td></tr>
+        <tr><td>Pooja Nanda</td><td>pooja.nanda@estateflow.in</td><td>Tele-caller</td><td>18 Apr 2026</td><td>Meera Iyer</td></tr>
+      </tbody>
+    </table></div></div>
+  </div>
+</div>
+
+<!-- ===================== BIRTHDAYS ===================== -->
+<div class="view" id="view-birthdays">
+  <div class="view-header"><div><h1>Birthdays</h1><p class="sub">Upcoming team birthdays and work anniversaries.</p></div></div>
+  <div class="grid grid-3">
+    <div class="card"><div class="flex-gap"><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg></div><div><div style="font-weight:700;font-size:14px;">Sonal Rao</div><div class="text-muted" style="font-size:11.5px;">Today · Sales Agent</div></div></div></div>
+    <div class="card"><div class="flex-gap"><div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg></div><div><div style="font-weight:700;font-size:14px;">Imran Sheikh</div><div class="text-muted" style="font-size:11.5px;">19 Jun · Sourcing Manager</div></div></div></div>
+    <div class="card"><div class="flex-gap"><div class="kpi-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg></div><div><div style="font-weight:700;font-size:14px;">Rohan Joshi</div><div class="text-muted" style="font-size:11.5px;">24 Jun · Tele-caller</div></div></div></div>
+    <div class="card"><div class="flex-gap"><div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg></div><div><div style="font-weight:700;font-size:14px;">Neha Gupta</div><div class="text-muted" style="font-size:11.5px;">02 Jul · Sales Agent</div></div></div></div>
+    <div class="card"><div class="flex-gap"><div class="kpi-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V12a2 2 0 012-2h12a2 2 0 012 2v9"/></svg></div><div><div style="font-weight:700;font-size:14px;">Karan Mehta</div><div class="text-muted" style="font-size:11.5px;">Work anniversary · 5 Jul · 3 years</div></div></div></div>
+    <div class="card"><div class="flex-gap"><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg></div><div><div style="font-weight:700;font-size:14px;">Priya Kapoor</div><div class="text-muted" style="font-size:11.5px;">14 Jul · Sales Admin</div></div></div></div>
+  </div>
+</div>
+
+<!-- ===================== SETTINGS ===================== -->
+<div class="view" id="view-settings">
+  <div class="view-header"><div><h1>Settings</h1><p class="sub">Workspace, notification and security preferences.</p></div></div>
+  <div class="grid grid-2">
+    <div class="card"><div class="section-title">Workspace</div>
+      <div class="form-row"><label>Company Name</label><input type="text" value="EstateFlow Realty Pvt. Ltd."></div>
+      <div class="form-row"><label>Default Currency</label><select><option>INR (₹)</option><option>USD ($)</option></select></div>
+      <div class="form-row"><label>Time Zone</label><select><option>Asia/Kolkata (GMT+5:30)</option></select></div>
+    </div>
+    <div class="card"><div class="section-title">Notifications</div>
+      <div class="flex-between" style="padding:9px 0;border-bottom:1px solid var(--border);"><span style="font-size:13px;">New lead alerts</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="flex-between" style="padding:9px 0;border-bottom:1px solid var(--border);"><span style="font-size:13px;">Payment due reminders</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="flex-between" style="padding:9px 0;border-bottom:1px solid var(--border);"><span style="font-size:13px;">Site visit reminders</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="flex-between" style="padding:9px 0;"><span style="font-size:13px;">Weekly summary email</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+    </div>
+    <div class="card"><div class="section-title">Security</div>
+      <div class="flex-between" style="padding:9px 0;border-bottom:1px solid var(--border);"><span style="font-size:13px;">Two-factor authentication</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+      <div class="flex-between" style="padding:9px 0;"><span style="font-size:13px;">Require password change every 90 days</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+    </div>
+    <div class="card"><div class="section-title">Roles &amp; Permissions</div><p class="text-muted" style="font-size:12.5px;">Manage what each role can view and edit across the CRM.</p><button class="btn btn-sm">Manage Roles</button></div>
+  </div>
+</div>
+
+  </div>
+</div>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div id="modal-root"></div>
+<div class="toast-stack" id="toast-stack"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+var BADGE_MAP = {
+  'New':'blue','Contacted':'amber','Site Visit':'purple','Negotiation':'green','Booked':'blue','Lost':'red',
+  'Won':'green','Proposal':'amber','Qualification':'blue',
+  'Paid':'green','Pending':'amber','Overdue':'red','Partially Paid':'amber',
+  'Active':'green','Inactive':'gray','Completed':'green','Scheduled':'blue','Paused':'gray','Draft':'gray',
+  'Available':'green','Held':'amber','Sold':'red',
+  'Buyer':'blue','Investor':'purple','Tenant':'amber','Broker':'gray',
+  'Platinum':'purple','Gold':'amber','Silver':'gray'
+};
+function badge(val){
+  var cls = BADGE_MAP[val] || 'gray';
+  return '<span class="badge '+cls+'">'+esc(val)+'</span>';
+}
+
+function showToast(msg, ok){
+  var stack = document.getElementById('toast-stack');
+  if(!stack) return;
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = '<span class="dot" style="background:'+(ok===false?'var(--danger)':'var(--success)')+';"></span><span>'+esc(msg)+'</span>';
+  stack.appendChild(t);
+  requestAnimationFrame(function(){ t.classList.add('show'); });
+  setTimeout(function(){
+    t.classList.remove('show');
+    setTimeout(function(){ t.remove(); }, 300);
+  }, 3200);
+}
+
+/* ============================================================
+   SAMPLE DATA
+   ============================================================ */
+var leadsData = [
+  {name:'Rahul Sharma',phone:'+91 98200 11234',source:'Website',project:'Skyline Heights',budget:'₹85L - ₹95L',status:'New',agent:'Karan Mehta',created:'2 hrs ago'},
+  {name:'Anjali Nair',phone:'+91 99200 22345',source:'99acres',project:'Palm Residency',budget:'₹1.2Cr - ₹1.5Cr',status:'Contacted',agent:'Sonal Rao',created:'4 hrs ago'},
+  {name:'Vikram Kulkarni',phone:'+91 97200 33456',source:'Channel Partner',project:'Greenfield Towers',budget:'₹65L - ₹75L',status:'Site Visit',agent:'Karan Mehta',created:'6 hrs ago'},
+  {name:'Sneha Mehta',phone:'+91 96200 44567',source:'Referral',project:'Skyline Heights',budget:'₹90L - ₹1Cr',status:'Negotiation',agent:'Dev Patel',created:'1 day ago'},
+  {name:'Arjun Joshi',phone:'+91 95200 55678',source:'Walk-in',project:'Lakeview Enclave',budget:'₹55L - ₹60L',status:'New',agent:'Sonal Rao',created:'1 day ago'},
+  {name:'Priya Singh',phone:'+91 94200 66789',source:'Website',project:'Palm Residency',budget:'₹1Cr - ₹1.1Cr',status:'Booked',agent:'Neha Gupta',created:'2 days ago'},
+  {name:'Manoj Tiwari',phone:'+91 93200 77890',source:'99acres',project:'Greenfield Towers',budget:'₹70L - ₹80L',status:'Lost',agent:'Rohan Joshi',created:'2 days ago'},
+  {name:'Kavita Reddy',phone:'+91 92200 88901',source:'Channel Partner',project:'Lakeview Enclave',budget:'₹58L - ₹65L',status:'Contacted',agent:'Karan Mehta',created:'3 days ago'},
+  {name:'Suresh Iyer',phone:'+91 91200 99012',source:'Referral',project:'Skyline Heights',budget:'₹95L - ₹1.05Cr',status:'Site Visit',agent:'Dev Patel',created:'3 days ago'},
+  {name:'Deepak Verma',phone:'+91 90200 10123',source:'Website',project:'Palm Residency',budget:'₹1.3Cr - ₹1.4Cr',status:'New',agent:'Sonal Rao',created:'4 days ago'},
+  {name:'Nisha Kapoor',phone:'+91 89200 21234',source:'Walk-in',project:'Greenfield Towers',budget:'₹68L - ₹72L',status:'Negotiation',agent:'Neha Gupta',created:'4 days ago'},
+  {name:'Aman Gupta',phone:'+91 88200 32345',source:'99acres',project:'Lakeview Enclave',budget:'₹52L - ₹58L',status:'Contacted',agent:'Rohan Joshi',created:'5 days ago'},
+  {name:'Ritika Bose',phone:'+91 87200 43456',source:'Channel Partner',project:'Skyline Heights',budget:'₹88L - ₹92L',status:'Booked',agent:'Karan Mehta',created:'5 days ago'},
+  {name:'Farhan Ali',phone:'+91 86200 54567',source:'Referral',project:'Palm Residency',budget:'₹1.15Cr - ₹1.25Cr',status:'New',agent:'Dev Patel',created:'6 days ago'},
+  {name:'Pooja Desai',phone:'+91 85200 65678',source:'Website',project:'Greenfield Towers',budget:'₹62L - ₹68L',status:'Lost',agent:'Sonal Rao',created:'6 days ago'}
+];
+
+var contactsData = [
+  {name:'Rahul Sharma',phone:'+91 98200 11234',email:'rahul.sharma@gmail.com',type:'Buyer',linked:'Lead #L-1001',lastContacted:'2 hrs ago'},
+  {name:'Anjali Nair',phone:'+91 99200 22345',email:'anjali.nair@gmail.com',type:'Buyer',linked:'Lead #L-1002',lastContacted:'4 hrs ago'},
+  {name:'Vikram Kulkarni',phone:'+91 97200 33456',email:'vikram.k@gmail.com',type:'Investor',linked:'Deal #D-2003',lastContacted:'6 hrs ago'},
+  {name:'Sneha Mehta',phone:'+91 96200 44567',email:'sneha.mehta@gmail.com',type:'Buyer',linked:'Deal #D-2004',lastContacted:'1 day ago'},
+  {name:'Horizon Realty Partners',phone:'+91 98700 11111',email:'contact@horizonrealty.in',type:'Broker',linked:'CP-104',lastContacted:'1 day ago'},
+  {name:'Suresh Iyer',phone:'+91 91200 99012',email:'suresh.iyer@gmail.com',type:'Tenant',linked:'Lead #L-1009',lastContacted:'2 days ago'},
+  {name:'Deepak Verma',phone:'+91 90200 10123',email:'deepak.verma@gmail.com',type:'Buyer',linked:'Lead #L-1010',lastContacted:'3 days ago'},
+  {name:'Metro Estates Brokers',phone:'+91 98700 22222',email:'hello@metroestates.in',type:'Broker',linked:'CP-108',lastContacted:'3 days ago'},
+  {name:'Kavita Reddy',phone:'+91 92200 88901',email:'kavita.reddy@gmail.com',type:'Investor',linked:'Lead #L-1008',lastContacted:'4 days ago'},
+  {name:'Ritika Bose',phone:'+91 87200 43456',email:'ritika.bose@gmail.com',type:'Buyer',linked:'Deal #D-2012',lastContacted:'4 days ago'},
+  {name:'Farhan Ali',phone:'+91 86200 54567',email:'farhan.ali@gmail.com',type:'Tenant',linked:'Lead #L-1014',lastContacted:'5 days ago'},
+  {name:'Nexus Property Advisors',phone:'+91 98700 33333',email:'info@nexusproperty.in',type:'Broker',linked:'CP-112',lastContacted:'6 days ago'}
+];
+
+var cpData = [
+  {firm:'Horizon Realty Partners',tier:'Platinum',leads:412,bookings:58,conv:'14.1%',brokerageDue:'₹18.4L',status:'Active'},
+  {firm:'Metro Estates Brokers',tier:'Gold',leads:298,bookings:36,conv:'12.1%',brokerageDue:'₹11.2L',status:'Active'},
+  {firm:'Nexus Property Advisors',tier:'Gold',leads:264,bookings:29,conv:'11.0%',brokerageDue:'₹9.8L',status:'Active'},
+  {firm:'Prime Channel Associates',tier:'Silver',leads:156,bookings:14,conv:'9.0%',brokerageDue:'₹4.6L',status:'Active'},
+  {firm:'Urban Nest Consultants',tier:'Silver',leads:132,bookings:11,conv:'8.3%',brokerageDue:'₹3.9L',status:'Inactive'},
+  {firm:'Skyline Brokers Co.',tier:'Platinum',leads:380,bookings:49,conv:'12.9%',brokerageDue:'₹16.1L',status:'Active'},
+  {firm:'Greenfield Realty Hub',tier:'Gold',leads:211,bookings:22,conv:'10.4%',brokerageDue:'₹7.4L',status:'Active'},
+  {firm:'Coastal Property Desk',tier:'Silver',leads:98,bookings:7,conv:'7.1%',brokerageDue:'₹2.2L',status:'Inactive'},
+  {firm:'Capital Estates Network',tier:'Gold',leads:245,bookings:27,conv:'11.0%',brokerageDue:'₹8.9L',status:'Active'},
+  {firm:'Vista Realty Partners',tier:'Platinum',leads:352,bookings:44,conv:'12.5%',brokerageDue:'₹14.7L',status:'Active'}
+];
+
+var laData = [
+  {lead:'Rahul Sharma',type:'Call',notes:'Discussed 2BHK options',agent:'Karan Mehta',time:'17 Jun, 10:42 AM',outcome:'Interested'},
+  {lead:'Anjali Nair',type:'Email',notes:'Sent brochure',agent:'Sonal Rao',time:'17 Jun, 9:15 AM',outcome:'Follow-up scheduled'},
+  {lead:'Vikram Kulkarni',type:'Site Visit',notes:'Visited Greenfield Towers',agent:'Karan Mehta',time:'16 Jun, 4:00 PM',outcome:'Positive'},
+  {lead:'Sneha Mehta',type:'WhatsApp',notes:'Shared payment plan',agent:'Dev Patel',time:'16 Jun, 2:30 PM',outcome:'Awaiting response'},
+  {lead:'Arjun Joshi',type:'Call',notes:'Initial enquiry call',agent:'Sonal Rao',time:'16 Jun, 11:00 AM',outcome:'Interested'},
+  {lead:'Priya Singh',type:'Meeting',notes:'Booking discussion',agent:'Neha Gupta',time:'15 Jun, 5:00 PM',outcome:'Booked'},
+  {lead:'Manoj Tiwari',type:'Call',notes:'Budget mismatch',agent:'Rohan Joshi',time:'15 Jun, 3:20 PM',outcome:'Not interested'},
+  {lead:'Kavita Reddy',type:'Site Visit',notes:'Visited Lakeview Enclave',agent:'Karan Mehta',time:'14 Jun, 1:00 PM',outcome:'Positive'},
+  {lead:'Suresh Iyer',type:'Email',notes:'Sent floor plans',agent:'Dev Patel',time:'14 Jun, 10:00 AM',outcome:'Follow-up scheduled'},
+  {lead:'Deepak Verma',type:'Call',notes:'New lead callback',agent:'Sonal Rao',time:'13 Jun, 9:40 AM',outcome:'Interested'},
+  {lead:'Nisha Kapoor',type:'WhatsApp',notes:'Sent pricing sheet',agent:'Neha Gupta',time:'12 Jun, 6:10 PM',outcome:'Awaiting response'},
+  {lead:'Ritika Bose',type:'Meeting',notes:'Token amount discussion',agent:'Karan Mehta',time:'11 Jun, 4:45 PM',outcome:'Booked'}
+];
+
+var laAgentData = [
+  {agent:'Karan Mehta',calls:312,emails:88,visits:42,bookings:14,conv:'19.4%'},
+  {agent:'Sonal Rao',calls:276,emails:74,visits:36,bookings:11,conv:'17.6%'},
+  {agent:'Dev Patel',calls:248,emails:65,visits:31,bookings:9,conv:'16.2%'},
+  {agent:'Neha Gupta',calls:232,emails:60,visits:28,bookings:8,conv:'15.5%'},
+  {agent:'Rohan Joshi',calls:198,emails:52,visits:22,bookings:5,conv:'12.9%'}
+];
+
+var dealsData = [
+  {id:'D-2001',customer:'Rahul Sharma',unit:'SH-A-1204',value:'₹92L',stage:'Negotiation',owner:'Karan Mehta',close:'28 Jun 2026'},
+  {id:'D-2002',customer:'Anjali Nair',unit:'PR-B-0805',value:'₹1.35Cr',stage:'Proposal',owner:'Sonal Rao',close:'30 Jun 2026'},
+  {id:'D-2003',customer:'Vikram Kulkarni',unit:'GT-C-0312',value:'₹70L',stage:'Qualification',owner:'Karan Mehta',close:'5 Jul 2026'},
+  {id:'D-2004',customer:'Sneha Mehta',unit:'SH-A-0908',value:'₹95L',stage:'Won',owner:'Dev Patel',close:'12 Jun 2026'},
+  {id:'D-2005',customer:'Arjun Joshi',unit:'LE-A-0204',value:'₹58L',stage:'Lost',owner:'Sonal Rao',close:'8 Jun 2026'},
+  {id:'D-2006',customer:'Priya Singh',unit:'PR-A-1102',value:'₹1.05Cr',stage:'Won',owner:'Neha Gupta',close:'1 Jun 2026'},
+  {id:'D-2007',customer:'Kavita Reddy',unit:'LE-B-0507',value:'₹62L',stage:'Negotiation',owner:'Karan Mehta',close:'2 Jul 2026'},
+  {id:'D-2008',customer:'Suresh Iyer',unit:'SH-B-1401',value:'₹1Cr',stage:'Proposal',owner:'Dev Patel',close:'9 Jul 2026'},
+  {id:'D-2009',customer:'Deepak Verma',unit:'PR-B-0312',value:'₹1.32Cr',stage:'Qualification',owner:'Sonal Rao',close:'14 Jul 2026'},
+  {id:'D-2010',customer:'Nisha Kapoor',unit:'GT-A-0608',value:'₹70L',stage:'Negotiation',owner:'Neha Gupta',close:'18 Jul 2026'},
+  {id:'D-2011',customer:'Aman Gupta',unit:'LE-A-0902',value:'₹55L',stage:'Lost',owner:'Rohan Joshi',close:'3 Jun 2026'},
+  {id:'D-2012',customer:'Ritika Bose',unit:'SH-C-1503',value:'₹90L',stage:'Won',owner:'Karan Mehta',close:'22 Jun 2026'},
+  {id:'D-2013',customer:'Farhan Ali',unit:'PR-A-0721',value:'₹1.2Cr',stage:'Proposal',owner:'Dev Patel',close:'25 Jul 2026'},
+  {id:'D-2014',customer:'Pooja Desai',unit:'GT-B-0415',value:'₹65L',stage:'Qualification',owner:'Sonal Rao',close:'30 Jul 2026'}
+];
+var dealsProjectOf = function(unit){
+  var p = unit.split('-')[0];
+  return {SH:'Skyline Heights',PR:'Palm Residency',GT:'Greenfield Towers',LE:'Lakeview Enclave'}[p] || '';
+};
+
+var payData = [
+  {receipt:'RC-5001',customer:'Sneha Mehta',unit:'SH-A-0908',milestone:'Booking Amount',amount:'₹9.5L',mode:'UPI',date:'1 Jun 2026',status:'Paid'},
+  {receipt:'RC-5002',customer:'Priya Singh',unit:'PR-A-1102',milestone:'Booking Amount',amount:'₹10.5L',mode:'Bank Transfer',date:'1 Jun 2026',status:'Paid'},
+  {receipt:'RC-5003',customer:'Ritika Bose',unit:'SH-C-1503',milestone:'Down Payment',amount:'₹18L',mode:'Cheque',date:'22 Jun 2026',status:'Paid'},
+  {receipt:'RC-5004',customer:'Rahul Sharma',unit:'SH-A-1204',milestone:'Booking Amount',amount:'₹9.2L',mode:'UPI',date:'14 Jun 2026',status:'Paid'},
+  {receipt:'RC-5005',customer:'Vikram Kulkarni',unit:'GT-C-0312',milestone:'Booking Amount',amount:'₹7L',mode:'Bank Transfer',date:'16 Jun 2026',status:'Pending'},
+  {receipt:'RC-5006',customer:'Anjali Nair',unit:'PR-B-0805',milestone:'Construction Linked - I',amount:'₹13.5L',mode:'Loan Disbursement',date:'17 Jun 2026',status:'Pending'},
+  {receipt:'RC-5007',customer:'Kavita Reddy',unit:'LE-B-0507',milestone:'Booking Amount',amount:'₹6.2L',mode:'UPI',date:'10 Jun 2026',status:'Overdue'},
+  {receipt:'RC-5008',customer:'Suresh Iyer',unit:'SH-B-1401',milestone:'Booking Amount',amount:'₹10L',mode:'Bank Transfer',date:'9 Jun 2026',status:'Paid'},
+  {receipt:'RC-5009',customer:'Deepak Verma',unit:'PR-B-0312',milestone:'Booking Amount',amount:'₹13.2L',mode:'Cheque',date:'5 Jun 2026',status:'Partially Paid'},
+  {receipt:'RC-5010',customer:'Nisha Kapoor',unit:'GT-A-0608',milestone:'Down Payment',amount:'₹14L',mode:'Bank Transfer',date:'30 May 2026',status:'Paid'},
+  {receipt:'RC-5011',customer:'Farhan Ali',unit:'PR-A-0721',milestone:'Booking Amount',amount:'₹12L',mode:'UPI',date:'28 May 2026',status:'Overdue'},
+  {receipt:'RC-5012',customer:'Aman Gupta',unit:'LE-A-0902',milestone:'Booking Amount',amount:'₹5.5L',mode:'Bank Transfer',date:'25 May 2026',status:'Paid'},
+  {receipt:'RC-5013',customer:'Pooja Desai',unit:'GT-B-0415',milestone:'Booking Amount',amount:'₹6.5L',mode:'Cheque',date:'20 May 2026',status:'Pending'},
+  {receipt:'RC-5014',customer:'Manoj Tiwari',unit:'GT-C-0901',milestone:'Token Amount',amount:'₹2L',mode:'UPI',date:'12 May 2026',status:'Paid'}
+];
+
+var dueData = [
+  {customer:'Kavita Reddy',unit:'LE-B-0507',project:'Lakeview Enclave',due:'₹6.2L',dueDate:'5 Jun 2026',overdue:12,lastReminder:'14 Jun 2026'},
+  {customer:'Farhan Ali',unit:'PR-A-0721',project:'Palm Residency',due:'₹12L',dueDate:'28 May 2026',overdue:20,lastReminder:'15 Jun 2026'},
+  {customer:'Deepak Verma',unit:'PR-B-0312',project:'Palm Residency',due:'₹4.8L',dueDate:'10 Jun 2026',overdue:7,lastReminder:'16 Jun 2026'},
+  {customer:'Pooja Desai',unit:'GT-B-0415',project:'Greenfield Towers',due:'₹6.5L',dueDate:'20 May 2026',overdue:28,lastReminder:'10 Jun 2026'},
+  {customer:'Manoj Tiwari',unit:'GT-C-0901',project:'Greenfield Towers',due:'₹2L',dueDate:'1 Jun 2026',overdue:16,lastReminder:'12 Jun 2026'},
+  {customer:'Arjun Joshi',unit:'LE-A-0204',project:'Lakeview Enclave',due:'₹3.2L',dueDate:'25 May 2026',overdue:23,lastReminder:'11 Jun 2026'},
+  {customer:'Aman Gupta',unit:'LE-A-0902',project:'Lakeview Enclave',due:'₹1.8L',dueDate:'8 Jun 2026',overdue:9,lastReminder:'15 Jun 2026'},
+  {customer:'Suresh Iyer',unit:'SH-B-1401',project:'Skyline Heights',due:'₹5L',dueDate:'30 May 2026',overdue:18,lastReminder:'13 Jun 2026'},
+  {customer:'Nisha Kapoor',unit:'GT-A-0608',project:'Greenfield Towers',due:'₹7.4L',dueDate:'15 Jun 2026',overdue:2,lastReminder:'16 Jun 2026'},
+  {customer:'Ritika Bose',unit:'SH-C-1503',project:'Skyline Heights',due:'₹9L',dueDate:'2 Jun 2026',overdue:15,lastReminder:'12 Jun 2026'},
+  {customer:'Vikram Kulkarni',unit:'GT-C-0312',project:'Greenfield Towers',due:'₹3.5L',dueDate:'18 May 2026',overdue:30,lastReminder:'9 Jun 2026'},
+  {customer:'Sneha Mehta',unit:'SH-A-0908',project:'Skyline Heights',due:'₹2.1L',dueDate:'22 May 2026',overdue:26,lastReminder:'10 Jun 2026'}
+];
+
+var campData = [
+  {name:'New Launch — Skyline Heights Phase 2',channel:'WhatsApp',audience:4200,sent:4200,opened:3150,status:'Completed',created:'1 Jun 2026'},
+  {name:'Festive Booking Offer',channel:'SMS',audience:6800,sent:6800,opened:'—',status:'Completed',created:'20 May 2026'},
+  {name:'Site Visit Reminder Drip',channel:'WhatsApp',audience:1240,sent:980,opened:760,status:'Active',created:'10 Jun 2026'},
+  {name:'Palm Residency Possession Update',channel:'Email',audience:2100,sent:2100,opened:1340,status:'Completed',created:'5 Jun 2026'},
+  {name:'Cold Lead Re-engagement',channel:'WhatsApp',audience:3600,sent:1200,opened:640,status:'Active',created:'12 Jun 2026'},
+  {name:'Payment Reminder — June',channel:'SMS',audience:1860,sent:1860,opened:'—',status:'Completed',created:'14 Jun 2026'},
+  {name:'Channel Partner Newsletter',channel:'Email',audience:412,sent:412,opened:298,status:'Scheduled',created:'18 Jun 2026'},
+  {name:'Lakeview Enclave Pre-launch',channel:'WhatsApp',audience:5400,sent:0,opened:0,status:'Scheduled',created:'20 Jun 2026'},
+  {name:'Diwali Greetings 2025',channel:'SMS',audience:8900,sent:8900,opened:'—',status:'Completed',created:'18 Oct 2025'},
+  {name:'Birthday Wishes Automation',channel:'WhatsApp',audience:86,sent:86,opened:71,status:'Active',created:'1 Jan 2026'}
+];
+
+var tmData = [
+  {name:'Karan Mehta',email:'karan.mehta@estateflow.in',role:'Sales Agent',team:'Skyline Heights',leads:312,status:'Active'},
+  {name:'Sonal Rao',email:'sonal.rao@estateflow.in',role:'Sales Agent',team:'Palm Residency',leads:276,status:'Active'},
+  {name:'Dev Patel',email:'dev.patel@estateflow.in',role:'Sales Agent',team:'Greenfield Towers',leads:248,status:'Active'},
+  {name:'Neha Gupta',email:'neha.gupta@estateflow.in',role:'Sales Agent',team:'Lakeview Enclave',leads:232,status:'Active'},
+  {name:'Rohan Joshi',email:'rohan.joshi@estateflow.in',role:'Tele-caller',team:'Channel Partner Desk',leads:198,status:'Active'},
+  {name:'Ritu Sharma',email:'ritu.sharma@estateflow.in',role:'Sourcing Manager',team:'Channel Partner Desk',leads:'—',status:'Active'},
+  {name:'Imran Sheikh',email:'imran.sheikh@estateflow.in',role:'Sourcing Manager',team:'Channel Partner Desk',leads:'—',status:'Active'},
+  {name:'Priya Kapoor',email:'priya.kapoor@estateflow.in',role:'Sales Admin',team:'Workspace',leads:'—',status:'Active'},
+  {name:'Meera Iyer',email:'meera.iyer@estateflow.in',role:'VP Sales',team:'Workspace',leads:'—',status:'Active'},
+  {name:'Aditya Rao',email:'aditya.rao@estateflow.in',role:'CEO',team:'Workspace',leads:'—',status:'Active'},
+  {name:'Sunil Bhatt',email:'sunil.bhatt@estateflow.in',role:'Sales Agent',team:'Skyline Heights',leads:84,status:'Inactive'},
+  {name:'Komal Shah',email:'komal.shah@estateflow.in',role:'Tele-caller',team:'Channel Partner Desk',leads:56,status:'Inactive'}
+];
+
+/* ============================================================
+   GENERIC TABLE CONTROLLER (sort + filter + live search)
+   ============================================================ */
+function makeController(opts){
+  // opts: { data, tbodyId, renderRow, emptyColspan, searchFields, filters: {selectId: fieldOrFn} }
+  var state = { rows: opts.data.slice(), sortKey: null, sortDir: 1, search: '', selectVals: {} };
+  var tbody = document.getElementById(opts.tbodyId);
+
+  function matchesSearch(row){
+    if(!state.search) return true;
+    var q = state.search.toLowerCase();
+    return (opts.searchFields||[]).some(function(f){
+      var v = row[f];
+      return v != null && String(v).toLowerCase().indexOf(q) !== -1;
+    });
+  }
+  function matchesFilters(row){
+    for(var key in state.selectVals){
+      var val = state.selectVals[key];
+      if(!val) continue;
+      var spec = opts.filters[key];
+      if(typeof spec === 'function'){
+        if(!spec(row, val)) return false;
+      } else {
+        if(String(row[spec]) !== val) return false;
+      }
+    }
+    return true;
+  }
+  function compute(){
+    var rows = opts.data.filter(function(r){ return matchesSearch(r) && matchesFilters(r); });
+    if(state.sortKey){
+      var k = state.sortKey, dir = state.sortDir;
+      rows.sort(function(a,b){
+        var av = a[k], bv = b[k];
+        var an = parseFloat(String(av).replace(/[^0-9.\-]/g,''));
+        var bn = parseFloat(String(bv).replace(/[^0-9.\-]/g,''));
+        var cmp;
+        if(!isNaN(an) && !isNaN(bn) && String(av).match(/[0-9]/) && String(bv).match(/[0-9]/)){
+          cmp = an - bn;
+        } else {
+          cmp = String(av).localeCompare(String(bv));
+        }
+        return cmp * dir;
+      });
+    }
+    state.rows = rows;
+    render();
+  }
+  function render(){
+    if(!tbody) return;
+    if(state.rows.length === 0){
+      tbody.innerHTML = '<tr><td colspan="'+(opts.emptyColspan||8)+'"><div class="empty-state" style="padding:36px 12px;"><h3 style="font-size:13px;">No matching records</h3><p>Try adjusting your filters or search.</p></div></td></tr>';
+    } else {
+      tbody.innerHTML = state.rows.map(opts.renderRow).join('');
+    }
+  }
+  function setSearch(v){ state.search = v; compute(); }
+  function setFilter(key, val){ state.selectVals[key] = val; compute(); }
+  function clearAll(){ state.search=''; state.selectVals={}; state.sortKey=null; state.sortDir=1; compute(); }
+  function sortBy(key){
+    if(state.sortKey === key){ state.sortDir *= -1; } else { state.sortKey = key; state.sortDir = 1; }
+    compute();
+  }
+  compute();
+  return { setSearch:setSearch, setFilter:setFilter, clearAll:clearAll, sortBy:sortBy, state:state };
+}
+
+/* ---- Row renderers ---- */
+function personChip(name){
+  var initials = name.split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
+  return '<div class="person"><div class="av">'+esc(initials)+'</div><div class="nm">'+esc(name)+'</div></div>';
+}
+
+function rowLeads(r){
+  return '<tr><td>'+personChip(r.name)+'</td><td>'+esc(r.phone)+'</td><td>'+esc(r.source)+'</td><td>'+esc(r.project)+'</td><td>'+esc(r.budget)+'</td><td>'+badge(r.status)+'</td><td>'+esc(r.agent)+'</td><td>'+esc(r.created)+'</td></tr>';
+}
+function rowContacts(r){
+  return '<tr><td>'+personChip(r.name)+'</td><td>'+esc(r.phone)+'</td><td>'+esc(r.email)+'</td><td>'+badge(r.type)+'</td><td>'+esc(r.linked)+'</td><td>'+esc(r.lastContacted)+'</td></tr>';
+}
+function rowCp(r){
+  return '<tr><td>'+esc(r.firm)+'</td><td>'+badge(r.tier)+'</td><td>'+r.leads+'</td><td>'+r.bookings+'</td><td>'+esc(r.conv)+'</td><td>'+esc(r.brokerageDue)+'</td><td>'+badge(r.status)+'</td></tr>';
+}
+function rowLa(r){
+  return '<tr><td>'+esc(r.lead)+'</td><td>'+esc(r.type)+'</td><td>'+esc(r.notes)+'</td><td>'+esc(r.agent)+'</td><td>'+esc(r.time)+'</td><td>'+esc(r.outcome)+'</td></tr>';
+}
+function rowLaAgent(r){
+  return '<tr><td>'+esc(r.agent)+'</td><td>'+r.calls+'</td><td>'+r.emails+'</td><td>'+r.visits+'</td><td>'+r.bookings+'</td><td>'+esc(r.conv)+'</td></tr>';
+}
+function rowDeals(r){
+  return '<tr><td>'+esc(r.id)+'</td><td>'+esc(r.customer)+'</td><td>'+esc(r.unit)+'</td><td>'+esc(r.value)+'</td><td>'+badge(r.stage)+'</td><td>'+esc(r.owner)+'</td><td>'+esc(r.close)+'</td></tr>';
+}
+function rowPay(r){
+  return '<tr><td>'+esc(r.receipt)+'</td><td>'+esc(r.customer)+'</td><td>'+esc(r.unit)+'</td><td>'+esc(r.milestone)+'</td><td>'+esc(r.amount)+'</td><td>'+esc(r.mode)+'</td><td>'+esc(r.date)+'</td><td>'+badge(r.status)+'</td></tr>';
+}
+function rowDue(r){
+  return '<tr><td>'+esc(r.customer)+'</td><td>'+esc(r.unit)+'</td><td>'+esc(r.project)+'</td><td>'+esc(r.due)+'</td><td>'+esc(r.dueDate)+'</td><td>'+r.overdue+' days</td><td>'+esc(r.lastReminder)+'</td><td><button class="btn btn-sm">Send Reminder</button></td></tr>';
+}
+function rowCamp(r){
+  return '<tr><td class="cell-main">'+esc(r.name)+'</td><td>'+badge(r.channel==='WhatsApp'?'WhatsApp':r.channel)+'</td><td>'+r.audience.toLocaleString()+'</td><td>'+r.sent.toLocaleString()+'</td><td>'+(typeof r.opened==='number'?r.opened.toLocaleString():r.opened)+'</td><td>'+badge(r.status)+'</td><td>'+esc(r.created)+'</td></tr>';
+}
+function rowTm(r){
+  return '<tr><td>'+personChip(r.name)+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.role)+'</td><td>'+esc(r.team)+'</td><td>'+r.leads+'</td><td>'+badge(r.status)+'</td><td><button class="btn btn-sm">Edit</button></td></tr>';
+}
+
+/* ============================================================
+   INSTANTIATE CONTROLLERS
+   ============================================================ */
+var ctrls = {};
+
+function initControllers(){
+  ctrls.leads = makeController({
+    data:leadsData, tbodyId:'leads-tbody', renderRow:rowLeads, emptyColspan:8,
+    searchFields:['name','phone'],
+    filters:{ status:'status', source:'source', project:'project' }
+  });
+  ctrls.contacts = makeController({
+    data:contactsData, tbodyId:'contacts-tbody', renderRow:rowContacts, emptyColspan:6,
+    searchFields:['name','phone','email'],
+    filters:{ type:'type' }
+  });
+  ctrls.cp = makeController({
+    data:cpData, tbodyId:'cp-tbody', renderRow:rowCp, emptyColspan:7,
+    searchFields:['firm'],
+    filters:{ tier:'tier' }
+  });
+  ctrls.la = makeController({
+    data:laData, tbodyId:'la-tbody', renderRow:rowLa, emptyColspan:6,
+    searchFields:['lead','notes'],
+    filters:{ type:'type' }
+  });
+  ctrls.laAgent = makeController({
+    data:laAgentData, tbodyId:'la-agent-tbody', renderRow:rowLaAgent, emptyColspan:6,
+    searchFields:[], filters:{}
+  });
+  ctrls.deals = makeController({
+    data:dealsData, tbodyId:'deals-tbody', renderRow:rowDeals, emptyColspan:7,
+    searchFields:['id','customer'],
+    filters:{
+      stage:'stage',
+      project:function(row,val){ return dealsProjectOf(row.unit) === val; }
+    }
+  });
+  ctrls.pay = makeController({
+    data:payData, tbodyId:'pay-tbody', renderRow:rowPay, emptyColspan:8,
+    searchFields:['receipt','customer'],
+    filters:{ status:'status', mode:'mode' }
+  });
+  ctrls.due = makeController({
+    data:dueData, tbodyId:'due-tbody', renderRow:rowDue, emptyColspan:8,
+    searchFields:['customer'],
+    filters:{
+      bucket:function(row,val){
+        var d = row.overdue;
+        if(val==='0-15 days') return d<=15;
+        if(val==='16-30 days') return d>=16 && d<=30;
+        if(val==='31-60 days') return d>=31 && d<=60;
+        if(val==='60+ days') return d>60;
+        return true;
+      }
+    }
+  });
+  ctrls.camp = makeController({
+    data:campData, tbodyId:'camp-tbody', renderRow:rowCamp, emptyColspan:7,
+    searchFields:['name'],
+    filters:{ channel:'channel', status:'status' }
+  });
+  ctrls.tm = makeController({
+    data:tmData, tbodyId:'tm-tbody', renderRow:rowTm, emptyColspan:7,
+    searchFields:['name','email'],
+    filters:{ role:'role', status:'status' }
+  });
+}
+
+/* ---- wire search inputs (live) ---- */
+function wireSearch(inputId, ctrlKey){
+  var el = document.getElementById(inputId);
+  if(!el) return;
+  el.addEventListener('input', function(){ ctrls[ctrlKey].setSearch(el.value); });
+}
+/* ---- wire a sortable table ---- */
+function wireSort(tableId, ctrlKey){
+  var table = document.getElementById(tableId);
+  if(!table) return;
+  table.querySelectorAll('th.sortable').forEach(function(th){
+    th.addEventListener('click', function(){
+      table.querySelectorAll('th.sortable').forEach(function(o){
+        if(o!==th){ o.classList.remove('sort-asc','sort-desc'); var a=o.querySelector('.sort-arrow'); if(a) a.style.transform=''; }
+      });
+      ctrls[ctrlKey].sortBy(th.dataset.key);
+      var asc = ctrls[ctrlKey].state.sortDir === 1;
+      th.classList.toggle('sort-asc', asc);
+      th.classList.toggle('sort-desc', !asc);
+      var arrow = th.querySelector('.sort-arrow');
+      if(arrow) arrow.style.transform = asc ? 'rotate(180deg)' : '';
+    });
+  });
+}
+/* ---- wire apply/clear filter buttons ---- */
+function wireFilterBar(prefix, ctrlKey, selectMap){
+  // selectMap: { filterKey: selectElementId }
+  var applyBtn = document.getElementById(prefix+'-apply');
+  var clearBtn = document.getElementById(prefix+'-clear');
+  if(applyBtn){
+    applyBtn.addEventListener('click', function(){
+      Object.keys(selectMap).forEach(function(fk){
+        var el = document.getElementById(selectMap[fk]);
+        if(el) ctrls[ctrlKey].setFilter(fk, el.value);
+      });
+      showToast('Filters applied.');
+    });
+  }
+  if(clearBtn){
+    clearBtn.addEventListener('click', function(){
+      Object.keys(selectMap).forEach(function(fk){
+        var el = document.getElementById(selectMap[fk]);
+        if(el) el.value = '';
+      });
+      var searchEl = document.getElementById(prefix+'-search');
+      if(searchEl) searchEl.value = '';
+      ctrls[ctrlKey].clearAll();
+      showToast('Filters cleared.');
+    });
+  }
+}
+
+function initTablesAndFilters(){
+  initControllers();
+
+  wireSearch('leads-search','leads'); wireSort('leads-table','leads');
+  wireFilterBar('leads','leads',{status:'leads-f-status',source:'leads-f-source',project:'leads-f-project'});
+
+  wireSearch('contacts-search','contacts'); wireSort('contacts-table','contacts');
+  wireFilterBar('contacts','contacts',{type:'contacts-f-type'});
+
+  wireSearch('cp-search','cp'); wireSort('cp-table','cp');
+  wireFilterBar('cp','cp',{tier:'cp-f-tier'});
+
+  wireSort('la-table','la');
+  wireFilterBar('la','la',{type:'la-f-type'});
+  wireSort('la-agent-table','laAgent');
+
+  wireSearch('deals-search','deals'); wireSort('deals-table','deals');
+  wireFilterBar('deals','deals',{stage:'deals-f-stage',project:'deals-f-project'});
+
+  wireSearch('pay-search','pay'); wireSort('pay-table','pay');
+  wireFilterBar('pay','pay',{status:'pay-f-status',mode:'pay-f-mode'});
+
+  wireSearch('due-search','due'); wireSort('due-table','due');
+  wireFilterBar('due','due',{bucket:'due-f-bucket'});
+
+  wireSearch('camp-search','camp'); wireSort('camp-table','camp');
+  wireFilterBar('camp','camp',{channel:'camp-f-channel',status:'camp-f-status'});
+
+  wireSearch('tm-search','tm'); wireSort('tm-table','tm');
+  wireFilterBar('tm','tm',{role:'tm-f-role',status:'tm-f-status'});
+}
+
+/* ============================================================
+   UNITS GRID (Tower A floor-wise availability)
+   ============================================================ */
+var unitFloors = [
+  {floor:'Floor 12', units:['available','available','available','available','held','available','available','available']},
+  {floor:'Floor 11', units:['available','available','held','available','available','available','available','available']},
+  {floor:'Floor 10', units:['available','held','available','available','sold','available','available','held']},
+  {floor:'Floor 9',  units:['booked','available','available','held','available','available','sold','available']},
+  {floor:'Floor 8',  units:['booked','booked','available','sold','available','held','available','available']},
+  {floor:'Floor 7',  units:['sold','booked','held','booked','available','sold','available','booked']},
+  {floor:'Floor 6',  units:['sold','sold','booked','booked','held','booked','sold','available']},
+  {floor:'Floor 5',  units:['sold','sold','sold','booked','booked','booked','sold','held']},
+  {floor:'Floor 4',  units:['sold','sold','sold','sold','booked','sold','booked','sold']},
+  {floor:'Floor 3',  units:['sold','sold','sold','sold','sold','booked','sold','sold']},
+  {floor:'Floor 2',  units:['sold','sold','sold','sold','sold','sold','sold','booked']},
+  {floor:'Floor 1',  units:['sold','sold','sold','sold','sold','sold','sold','sold']}
+];
+var STATUS_LABEL = {available:'Available',held:'Held',booked:'Booked',sold:'Sold'};
+var STATUS_INITIAL = {available:'A',held:'H',booked:'B',sold:'S'};
+
+function renderUnitsGrid(){
+  var grid = document.getElementById('units-grid');
+  if(!grid) return;
+  grid.innerHTML = unitFloors.map(function(f, fi){
+    var unitsHtml = f.units.map(function(status, ui){
+      var unitNo = 'A-' + (1200 + (11-fi)*100 + ui + 1);
+      return '<div class="unit-cell '+status+'">'+STATUS_INITIAL[status]+
+        '<span class="tt-bubble">'+esc(unitNo)+' — '+STATUS_LABEL[status]+'</span></div>';
+    }).join('');
+    return '<div class="floor-row"><div class="floor-label">'+esc(f.floor)+'</div><div class="floor-units">'+unitsHtml+'</div></div>';
+  }).join('');
+}
+
+/* ============================================================
+   REPORTS: CALL ANALYSIS / ATTENDANCE empty-state swap
+   ============================================================ */
+var emptyStateCache = {};
+
+function cacheEmptyState(id){
+  var el = document.getElementById(id);
+  if(el) emptyStateCache[id] = el.innerHTML;
+}
+
+function wireCallAnalysis(){
+  cacheEmptyState('ca-results-wrap');
+  var applyBtn = document.getElementById('ca-apply');
+  var clearBtn = document.getElementById('ca-clear');
+  var wrap = document.getElementById('ca-results-wrap');
+  if(applyBtn) applyBtn.addEventListener('click', function(){
+    var agent = document.getElementById('ca-f-agent').value;
+    if(!agent){ showToast('Please select an agent first.', false); return; }
+    var dateVal = document.getElementById('ca-f-date').value || 'Last 30 days';
+    var stats = {
+      'Karan Mehta': {calls:312, connected:248, missed:64, avg:'4m 02s', conv:'19.4%'},
+      'Sonal Rao': {calls:276, connected:219, missed:57, avg:'3m 28s', conv:'17.6%'},
+      'Dev Patel': {calls:248, connected:186, missed:62, avg:'3m 55s', conv:'16.2%'},
+      'Neha Gupta': {calls:232, connected:174, missed:58, avg:'3m 12s', conv:'15.5%'}
+    }[agent];
+    wrap.innerHTML = '<div class="kpi-row" style="margin-bottom:0;">'+
+      '<div class="kpi-card"><div class="top-row"><span class="label">Total Calls</span></div><div class="value">'+stats.calls+'</div></div>'+
+      '<div class="kpi-card"><div class="top-row"><span class="label">Connected</span></div><div class="value">'+stats.connected+'</div></div>'+
+      '<div class="kpi-card"><div class="top-row"><span class="label">Missed</span></div><div class="value">'+stats.missed+'</div></div>'+
+      '<div class="kpi-card"><div class="top-row"><span class="label">Avg Duration</span></div><div class="value">'+stats.avg+'</div></div>'+
+      '<div class="kpi-card"><div class="top-row"><span class="label">Conversion</span></div><div class="value">'+stats.conv+'</div></div>'+
+      '</div><p class="text-muted" style="font-size:12px;margin-top:14px;">Showing call analysis for <strong>'+esc(agent)+'</strong> — '+esc(dateVal)+'.</p>';
+    showToast('Call analysis loaded for '+agent+'.');
+  });
+  if(clearBtn) clearBtn.addEventListener('click', function(){
+    document.getElementById('ca-f-agent').value = '';
+    document.getElementById('ca-f-date').value = '';
+    wrap.innerHTML = emptyStateCache['ca-results-wrap'];
+  });
+}
+
+function wireAttendance(){
+  cacheEmptyState('att-results-wrap');
+  var applyBtn = document.getElementById('att-apply');
+  var clearBtn = document.getElementById('att-clear');
+  var wrap = document.getElementById('att-results-wrap');
+  if(applyBtn) applyBtn.addEventListener('click', function(){
+    var team = document.getElementById('att-f-team').value;
+    var date = document.getElementById('att-f-date').value;
+    if(!team || !date){ showToast('Please select a team and date.', false); return; }
+    var rows = [
+      {name:'Karan Mehta', checkIn:'9:42 AM', checkOut:'6:50 PM', status:'Present'},
+      {name:'Sonal Rao', checkIn:'9:55 AM', checkOut:'6:30 PM', status:'Present'},
+      {name:'Dev Patel', checkIn:'10:20 AM', checkOut:'6:05 PM', status:'Late'},
+      {name:'Neha Gupta', checkIn:'—', checkOut:'—', status:'Absent'}
+    ];
+    wrap.innerHTML = '<div class="table-scroll"><table class="data-table">'+
+      '<thead><tr><th>Employee</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead>'+
+      '<tbody>'+rows.map(function(r){
+        return '<tr><td>'+esc(r.name)+'</td><td>'+esc(r.checkIn)+'</td><td>'+esc(r.checkOut)+'</td><td>'+badge(r.status==='Present'?'Active':(r.status==='Absent'?'Inactive':'Pending'))+' '+esc(r.status)+'</td></tr>';
+      }).join('')+'</tbody></table></div>'+
+      '<p class="text-muted" style="font-size:12px;margin-top:10px;padding:0 4px;">Showing attendance for <strong>'+esc(team)+'</strong> on '+esc(date)+'.</p>';
+    showToast('Attendance loaded for '+team+'.');
+  });
+  if(clearBtn) clearBtn.addEventListener('click', function(){
+    document.getElementById('att-f-team').value = '';
+    document.getElementById('att-f-date').value = '';
+    wrap.innerHTML = emptyStateCache['att-results-wrap'];
+  });
+}
+
+function wireEmployeeTracking(){
+  var applyBtn = document.getElementById('et-apply');
+  var clearBtn = document.getElementById('et-clear');
+  if(applyBtn) applyBtn.addEventListener('click', function(){ showToast('Filters applied.'); });
+  if(clearBtn) clearBtn.addEventListener('click', function(){
+    var emp = document.getElementById('et-f-emp'); if(emp) emp.value='';
+    var date = document.getElementById('et-f-date'); if(date) date.value='';
+    showToast('Filters cleared.');
+  });
+}
+
+/* ============================================================
+   GENERIC TAB SWITCHING
+   ============================================================ */
+function wireTabs(){
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.tab-btn');
+    if(!btn) return;
+    var group = btn.dataset.tabGroup;
+    var tab = btn.dataset.tab;
+    var groupBtns = document.querySelectorAll('.tab-btn[data-tab-group="'+group+'"]');
+    var tabIds = [];
+    groupBtns.forEach(function(b){
+      b.classList.toggle('active', b===btn);
+      tabIds.push(b.dataset.tab);
+    });
+    tabIds.forEach(function(id){
+      var panel = document.getElementById(id);
+      if(panel) panel.classList.toggle('active', id===tab);
+    });
+  });
+}
+
+/* ============================================================
+   SIDEBAR NAVIGATION
+   ============================================================ */
+var VIEW_TITLES = {
+  overview:'Overview', projects:'Projects', sitevisits:'Site Visits', bookings:'Bookings', expenses:'Expenses',
+  leads:'Leads', contacts:'Contacts', channelpartners:'Channel Partners', leadactivity:'Lead Activity',
+  deals:'Deals', payments:'Payments', units:'Units', duecustomers:'Due Customers',
+  campaigns:'Campaigns',
+  'reports-overview':'Reports — Lead Analysis', 'reports-cpsourcing':'Reports — CP Sourcing',
+  'reports-callanalysis':'Reports — Call Analysis', 'reports-calllogs':'Reports — Call Logs',
+  'reports-ivr':'Reports — IVR Calls', 'reports-visitanalysis':'Reports — Visit Analysis',
+  'reports-attendance':'Reports — Attendance', 'reports-employeetracking':'Reports — Employee Tracking',
+  orgchart:'Org Chart', teammembers:'Team Members', birthdays:'Birthdays', settings:'Settings'
+};
+
+function switchView(viewId){
+  var target = document.getElementById('view-'+viewId);
+  if(!target) return;
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.toggle('active', v===target); });
+  document.querySelectorAll('.nav-item[data-view]').forEach(function(n){ n.classList.toggle('active', n.dataset.view===viewId); });
+  document.querySelectorAll('.nav-sub-item').forEach(function(n){ n.classList.toggle('active', n.dataset.view===viewId); });
+
+  var isReports = viewId.indexOf('reports-') === 0;
+  var reportsParent = document.getElementById('reports-parent');
+  var reportsSub = document.getElementById('reports-sub');
+  if(reportsParent){ reportsParent.classList.toggle('active', isReports); }
+  if(isReports && reportsSub){
+    reportsSub.classList.add('open');
+    if(reportsParent) reportsParent.classList.add('expanded');
+  }
+
+  var titleEl = document.getElementById('topbar-title');
+  if(titleEl) titleEl.textContent = VIEW_TITLES[viewId] || viewId;
+
+  document.getElementById('content').scrollTop = 0;
+}
+
+function wireNav(){
+  document.querySelectorAll('.nav-item[data-view]').forEach(function(item){
+    item.addEventListener('click', function(){ switchView(item.dataset.view); });
+  });
+  document.querySelectorAll('.nav-sub-item[data-view]').forEach(function(item){
+    item.addEventListener('click', function(e){ e.stopPropagation(); switchView(item.dataset.view); });
+  });
+  var reportsParent = document.getElementById('reports-parent');
+  var reportsSub = document.getElementById('reports-sub');
+  if(reportsParent){
+    reportsParent.addEventListener('click', function(){
+      reportsParent.classList.toggle('expanded');
+      if(reportsSub) reportsSub.classList.toggle('open');
+    });
+  }
+  document.querySelectorAll('[data-view-link]').forEach(function(el){
+    el.addEventListener('click', function(){ switchView(el.dataset.viewLink); });
+  });
+}
+
+/* ============================================================
+   GENERIC ADD/EXPORT MODAL HANDLING
+   ============================================================ */
+function openAddModal(title){
+  var root = document.getElementById('modal-root');
+  root.innerHTML =
+    '<div class="modal-overlay open" id="generic-modal">'+
+      '<div class="modal">'+
+        '<div class="modal-head"><h3>'+esc(title)+'</h3><button class="modal-close" id="generic-modal-close">&times;</button></div>'+
+        '<div class="modal-body">'+
+          '<div style="margin-bottom:14px;"><label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Name</label><input type="text" placeholder="Enter name" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;"></div>'+
+          '<div style="margin-bottom:14px;"><label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Phone / Email</label><input type="text" placeholder="Enter contact detail" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;"></div>'+
+          '<div><label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Notes</label><textarea rows="3" placeholder="Optional notes" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;resize:vertical;"></textarea></div>'+
+        '</div>'+
+        '<div class="modal-foot"><button class="btn" id="generic-modal-cancel">Cancel</button><button class="btn btn-primary" id="generic-modal-save">Save</button></div>'+
+      '</div>'+
+    '</div>';
+  function close(){ root.innerHTML = ''; }
+  document.getElementById('generic-modal-close').addEventListener('click', close);
+  document.getElementById('generic-modal-cancel').addEventListener('click', close);
+  document.getElementById('generic-modal-save').addEventListener('click', function(){
+    close();
+    showToast(title+' saved successfully.');
+  });
+  document.getElementById('generic-modal').addEventListener('click', function(e){
+    if(e.target.id === 'generic-modal') close();
+  });
+}
+
+function wireActionButtons(){
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.view-actions .btn');
+    if(!btn) return;
+    var label = btn.textContent.trim();
+    if(label === 'Export'){
+      showToast('Export started — your file will download shortly.');
+      return;
+    }
+    openAddModal(label);
+  });
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', function(){
+  wireNav();
+  wireTabs();
+  initTablesAndFilters();
+  renderUnitsGrid();
+  wireCallAnalysis();
+  wireAttendance();
+  wireEmployeeTracking();
+  wireActionButtons();
+  switchView('overview');
+});
+
+})();
+
+</script>
+</body>
+</html>
